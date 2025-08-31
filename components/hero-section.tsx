@@ -1,4 +1,6 @@
-import React from 'react'
+'use client'
+
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
@@ -11,6 +13,7 @@ import CallToAction from '@/components/call-to-action'
 import FAQsTwo from '@/components/faqs-2'
 import { WhatsAppButton } from '@/components/whatsapp-button'
 import FooterSection from '@/components/footer'
+import { BookingModal } from '@/components/booking-modal'
 
 const transitionVariants = {
     item: {
@@ -33,9 +36,11 @@ const transitionVariants = {
 }
 
 export function HeroSection() {
+    const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)
+
     return (
         <>
-            <Header />
+            <Header onBookDemo={() => setIsBookingModalOpen(true)} />
             <WhatsAppButton />
             <main className="overflow-hidden">
                 <div
@@ -114,13 +119,11 @@ export function HeroSection() {
                                     <div
                                         key={1}>
                                         <Button
-                                            asChild
                                             size="lg"
                                             className="rounded-xl px-5 text-base bg-[#00251D] hover:bg-[#00251D]/90 text-white shadow-none border-0"
-                                            style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif" }}>
-                                            <Link href="#link">
-                                                <span className="text-nowrap">Agenda un demo</span>
-                                            </Link>
+                                            style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif" }}
+                                            onClick={() => setIsBookingModalOpen(true)}>
+                                            <span className="text-nowrap">Agenda un demo</span>
                                         </Button>
                                     </div>
                                 </AnimatedGroup>
@@ -160,10 +163,16 @@ export function HeroSection() {
                 <StatsSection />
                 <FeaturesSection />
                 <IntegrationsSection />
-                <CallToAction />
+                <CallToAction onBookDemo={() => setIsBookingModalOpen(true)} />
                 <FAQsTwo />
                 <FooterSection />
             </main>
+            
+            {/* Booking Modal */}
+            <BookingModal 
+                isOpen={isBookingModalOpen} 
+                onClose={() => setIsBookingModalOpen(false)} 
+            />
         </>
     )
 }

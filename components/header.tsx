@@ -5,7 +5,11 @@ import { Button } from '@/components/ui/button'
 import React from 'react'
 import { cn } from '@/lib/utils'
 
-export const Header = () => {
+interface HeaderProps {
+    onBookDemo?: () => void
+}
+
+export const Header = ({ onBookDemo }: HeaderProps) => {
     const [isScrolled, setIsScrolled] = React.useState(false)
 
     React.useEffect(() => {
@@ -28,13 +32,11 @@ export const Header = () => {
                         </Link>
 
                         <Button
-                            asChild
                             size="sm"
                             className="bg-[#00251D] hover:bg-[#00251D]/90 text-white shadow-none"
-                            style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif" }}>
-                            <Link href="#">
-                                <span>Agenda un demo</span>
-                            </Link>
+                            style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif" }}
+                            onClick={onBookDemo}>
+                            <span>Agenda un demo</span>
                         </Button>
                     </div>
                 </div>
