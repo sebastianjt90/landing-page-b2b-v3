@@ -12,31 +12,51 @@ interface BookingModalProps {
 
 export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalProps) {
     const [isScriptLoaded, setIsScriptLoaded] = useState(false)
+    const [currentLocale, setCurrentLocale] = useState(locale)
     const t = translations[locale as keyof typeof translations] || translations.es
+
+    // Reset and reload when locale changes
+    useEffect(() => {
+        if (locale !== currentLocale) {
+            setCurrentLocale(locale)
+            setIsScriptLoaded(false)
+            // Remove existing iframe containers to force reload
+            const containers = document.querySelectorAll('.meetings-iframe-container iframe')
+            containers.forEach(container => container.remove())
+        }
+    }, [locale, currentLocale])
 
     useEffect(() => {
         if (isOpen && !isScriptLoaded) {
-            // Load HubSpot meetings embed script
-            const script = document.createElement('script')
-            script.src = 'https://static.hsappstatic.net/MeetingsEmbed/ex/MeetingsEmbedCode.js'
-            script.async = true
-            script.onload = () => {
-                setIsScriptLoaded(true)
-                // Initialize HubSpot meetings widget after script loads
-                if (window.HubSpotMeetings) {
-                    window.HubSpotMeetings.init()
+            // Small delay to ensure DOM is ready
+            const timer = setTimeout(() => {
+                // Load HubSpot meetings embed script
+                const existingScript = document.querySelector('script[src="https://static.hsappstatic.net/MeetingsEmbed/ex/MeetingsEmbedCode.js"]')
+                
+                if (existingScript) {
+                    // Script already loaded, just reinitialize
+                    if (window.HubSpotMeetings) {
+                        window.HubSpotMeetings.init()
+                    }
+                    setIsScriptLoaded(true)
+                } else {
+                    // Load script for the first time
+                    const script = document.createElement('script')
+                    script.src = 'https://static.hsappstatic.net/MeetingsEmbed/ex/MeetingsEmbedCode.js'
+                    script.async = true
+                    script.onload = () => {
+                        setIsScriptLoaded(true)
+                        if (window.HubSpotMeetings) {
+                            window.HubSpotMeetings.init()
+                        }
+                    }
+                    document.body.appendChild(script)
                 }
-            }
-            document.body.appendChild(script)
+            }, 100)
 
-            return () => {
-                // Cleanup if needed
-                if (document.body.contains(script)) {
-                    document.body.removeChild(script)
-                }
-            }
+            return () => clearTimeout(timer)
         }
-    }, [isOpen, isScriptLoaded])
+    }, [isOpen, isScriptLoaded, locale])
 
     useEffect(() => {
         // Prevent scroll when modal is open
@@ -44,6 +64,10 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
             document.body.style.overflow = 'hidden'
         } else {
             document.body.style.overflow = 'unset'
+            // Clean up iframe when modal closes
+            const containers = document.querySelectorAll('.meetings-iframe-container iframe')
+            containers.forEach(container => container.remove())
+            setIsScriptLoaded(false)
         }
 
         return () => {
@@ -73,6 +97,7 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                 
                 {/* HubSpot Meetings Widget Container - Sin contenedor adicional */}
                 <div 
+                    key={`hubspot-meeting-${locale}`}
                     className="meetings-iframe-container" 
                     data-src={t.booking.meetingUrl}
                     style={{ width: '100%', height: '100%' }}

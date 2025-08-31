@@ -83,7 +83,7 @@ export const translations = {
     booking: {
       title: 'Agenda tu demo personalizado',
       subtitle: 'Selecciona el día y hora que mejor te convenga. Recibirás una confirmación por correo.',
-      meetingUrl: 'https://meetings.hubspot.com/sebastian-jimenez-trujillo/lahausai-demo?embed=true'
+      meetingUrl: 'https://meetings.hubspot.com/sebastian-jimenez-trujillo/lahausai-demo?embed=true&lang=es'
     }
   },
   en: {
@@ -171,7 +171,7 @@ export const translations = {
     booking: {
       title: 'Book your personalized demo',
       subtitle: 'Select the day and time that works best for you. You will receive an email confirmation.',
-      meetingUrl: 'https://meetings.hubspot.com/tomasuribe1/lahaus-ai-en?embed=true'
+      meetingUrl: 'https://meetings.hubspot.com/tomasuribe1/lahaus-ai-en?embed=true&lang=en'
     }
   }
 }
