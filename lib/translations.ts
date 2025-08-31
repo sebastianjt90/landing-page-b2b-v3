@@ -164,7 +164,8 @@ export const translations = {
       copyright: 'All rights reserved'
     },
     whatsapp: {
-      message: 'Hello, I would like to learn more about the AI assistant for real estate'
+      message: "Hi, I'd like to understand how your AI assistant works and how it could help me get more sales",
+      phoneNumber: '525530212543'
     },
     booking: {
       title: 'Book your personalized demo',

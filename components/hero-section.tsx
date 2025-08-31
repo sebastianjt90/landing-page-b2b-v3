@@ -43,7 +43,7 @@ export function HeroSection({ locale = 'es' }: { locale?: string }) {
     return (
         <>
             <Header onBookDemo={() => setIsBookingModalOpen(true)} locale={locale} />
-            <WhatsAppButton />
+            <WhatsAppButton locale={locale} />
             <main className="overflow-hidden">
                 <div
                     aria-hidden
