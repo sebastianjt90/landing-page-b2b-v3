@@ -4,13 +4,17 @@ import { Logo } from '@/components/logo'
 import { Button } from '@/components/ui/button'
 import React from 'react'
 import { cn } from '@/lib/utils'
+import { LanguageSelector } from '@/components/language-selector'
+import { translations } from '@/lib/translations'
 
 interface HeaderProps {
     onBookDemo?: () => void
+    locale?: string
 }
 
-export const Header = ({ onBookDemo }: HeaderProps) => {
+export const Header = ({ onBookDemo, locale = 'es' }: HeaderProps) => {
     const [isScrolled, setIsScrolled] = React.useState(false)
+    const t = translations[locale as keyof typeof translations] || translations.es
 
     React.useEffect(() => {
         const handleScroll = () => {
@@ -31,13 +35,16 @@ export const Header = ({ onBookDemo }: HeaderProps) => {
                             <Logo />
                         </Link>
 
-                        <Button
+                        <div className="flex items-center gap-2">
+                            <LanguageSelector locale={locale} />
+                            <Button
                             size="sm"
                             className="bg-[#00251D] hover:bg-[#00251D]/90 text-white shadow-none"
                             style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif" }}
                             onClick={onBookDemo}>
-                            <span>Agenda un demo</span>
-                        </Button>
+                                <span>{t.header.bookDemo}</span>
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </nav>

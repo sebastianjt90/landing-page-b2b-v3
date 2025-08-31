@@ -14,6 +14,7 @@ import FAQsTwo from '@/components/faqs-2'
 import { WhatsAppButton } from '@/components/whatsapp-button'
 import FooterSection from '@/components/footer'
 import { BookingModal } from '@/components/booking-modal'
+import { translations } from '@/lib/translations'
 
 const transitionVariants = {
     item: {
@@ -35,12 +36,13 @@ const transitionVariants = {
     },
 }
 
-export function HeroSection() {
+export function HeroSection({ locale = 'es' }: { locale?: string }) {
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)
+    const t = translations[locale as keyof typeof translations] || translations.es
 
     return (
         <>
-            <Header onBookDemo={() => setIsBookingModalOpen(true)} />
+            <Header onBookDemo={() => setIsBookingModalOpen(true)} locale={locale} />
             <WhatsAppButton />
             <main className="overflow-hidden">
                 <div
@@ -95,12 +97,12 @@ export function HeroSection() {
                                 <h1 
                                     className="mx-auto mt-8 max-w-5xl text-balance text-4xl font-semibold sm:text-5xl md:text-6xl lg:mt-16 xl:text-[4.5rem] px-4 sm:px-0"
                                     style={{ fontFamily: "'LaHaus Display', system-ui, sans-serif", fontWeight: 600 }}>
-                                    <span style={{ color: '#E19BFF' }}>Asistente IA</span>
-                                    <span style={{ color: '#00251D' }}> que responde en segundos y agenda citas automáticamente</span>
+                                    <span style={{ color: '#E19BFF' }}>{t.hero.titleHighlight}</span>
+                                    <span style={{ color: '#00251D' }}> {t.hero.titleMain}</span>
                                 </h1>
                                 <p className="mx-auto mt-8 max-w-2xl text-balance text-base sm:text-lg px-4 sm:px-0" 
                                     style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif" }}>
-                                    Desarrolladores e inmobiliarias que han integrado nuestra solución han incrementado sus ventas <strong>hasta un 35%</strong>
+                                    {t.hero.subtitle.split('35%')[0]}<strong>35%</strong>{t.hero.subtitle.split('35%')[1]}
                                 </p>
 
                                 <AnimatedGroup
@@ -123,7 +125,7 @@ export function HeroSection() {
                                             className="rounded-xl px-5 text-base bg-[#00251D] hover:bg-[#00251D]/90 text-white shadow-none border-0"
                                             style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif" }}
                                             onClick={() => setIsBookingModalOpen(true)}>
-                                            <span className="text-nowrap">Agenda un demo</span>
+                                            <span className="text-nowrap">{t.hero.cta}</span>
                                         </Button>
                                     </div>
                                 </AnimatedGroup>
@@ -149,8 +151,8 @@ export function HeroSection() {
                                 />
                                 <Image
                                     className="relative mx-auto w-full max-w-7xl"
-                                    src="/lahaus360.png"
-                                    alt="app screen"
+                                    src={t.hero.mainImage}
+                                    alt={t.hero.mainImageAlt}
                                     width="2544"
                                     height="1648"
                                     style={{ aspectRatio: '2544/1648' }}
@@ -160,12 +162,12 @@ export function HeroSection() {
                         </AnimatedGroup>
                     </div>
                 </section>
-                <StatsSection />
-                <FeaturesSection />
-                <IntegrationsSection />
-                <CallToAction onBookDemo={() => setIsBookingModalOpen(true)} />
-                <FAQsTwo />
-                <FooterSection />
+                <StatsSection locale={locale} />
+                <FeaturesSection locale={locale} />
+                <IntegrationsSection locale={locale} />
+                <CallToAction onBookDemo={() => setIsBookingModalOpen(true)} locale={locale} />
+                <FAQsTwo locale={locale} />
+                <FooterSection locale={locale} />
             </main>
             
             {/* Booking Modal */}
