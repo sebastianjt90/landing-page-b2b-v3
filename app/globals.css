@@ -20,6 +20,23 @@
        url('/fonts/LaHausDisplaySemiBold.woff') format('woff');
 }
 
+/* Wix Madefor Text Font */
+@font-face {
+  font-family: 'Wix Madefor Text';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/WixMadeforText-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Wix Madefor Text';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/WixMadeforText-Medium.ttf') format('truetype');
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
