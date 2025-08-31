@@ -78,7 +78,8 @@ export const translations = {
       copyright: 'Todos los derechos reservados'
     },
     whatsapp: {
-      message: 'Hola, me gustaría conocer más sobre el asistente IA para inmobiliarias'
+      message: 'Hola, me gustaría entender cómo funciona su asistente AI y cómo puede ayudarme a obtener más ventas',
+      phoneNumber: '525530212543'
     },
     booking: {
       title: 'Agenda tu demo personalizado',
