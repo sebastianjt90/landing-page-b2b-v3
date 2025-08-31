@@ -1,9 +1,7 @@
-import { HeroSection } from "@/components/hero-section"
+import { redirect } from 'next/navigation'
 
 export default function Home() {
-  return (
-    <div className="min-h-screen">
-      <HeroSection />
-    </div>
-  )
+  // Redirect to locale-specific page
+  // The middleware will handle the actual locale detection
+  redirect('/es')
 }
