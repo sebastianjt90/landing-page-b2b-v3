@@ -91,7 +91,7 @@ export const translations = {
     },
     hero: {
       titleHighlight: 'AI Assistant',
-      titleMain: 'that responds instantly and books showings automatically',
+      titleMain: 'that answers instantly and books showings automatically',
       subtitle: 'Developers, realtors and teams using our solution have increased their closings up to 35%',
       cta: 'Book a demo',
       mainImage: '/lahaus360-en.png',
@@ -112,9 +112,9 @@ export const translations = {
       subtitle: 'While your team focuses on closing deals, the AI assistant qualifies and nurtures every lead automatically.',
       items: [
         'AI trained specifically for real estate',
-        'Instant response 24/7/365',
+        'Instant answers 24/7/365',
         'Automatic showing scheduling and confirmation',
-        'Handles chat and voice calls with AI',
+        'Answers chat and voice calls with AI',
         'Detailed analytics and performance reports'
       ],
       chatGif: '/chat-en.gif',
@@ -140,7 +140,7 @@ export const translations = {
         },
         {
           question: 'Which lead sources can the assistant handle?',
-          answer: 'All lead generation sources: Facebook, Instagram, Google Ads, Zillow, Realtor.com, your website, WhatsApp, text messaging, and any platform you use. The assistant captures and responds to leads wherever they come from.'
+          answer: 'All lead generation sources: Facebook, Instagram, Google Ads, Zillow, Realtor.com, your website, WhatsApp, text messaging, and any platform you use. The assistant captures and answers leads wherever they come from.'
         },
         {
           question: 'Can I customize the agent with my brokerage branding?',
