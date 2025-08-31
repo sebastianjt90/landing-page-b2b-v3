@@ -173,7 +173,8 @@ export function HeroSection({ locale = 'es' }: { locale?: string }) {
             {/* Booking Modal */}
             <BookingModal 
                 isOpen={isBookingModalOpen} 
-                onClose={() => setIsBookingModalOpen(false)} 
+                onClose={() => setIsBookingModalOpen(false)}
+                locale={locale}
             />
         </>
     )

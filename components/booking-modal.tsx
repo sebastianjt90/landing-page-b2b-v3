@@ -2,14 +2,17 @@
 
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
+import { translations } from '@/lib/translations'
 
 interface BookingModalProps {
     isOpen: boolean
     onClose: () => void
+    locale?: string
 }
 
-export function BookingModal({ isOpen, onClose }: BookingModalProps) {
+export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalProps) {
     const [isScriptLoaded, setIsScriptLoaded] = useState(false)
+    const t = translations[locale as keyof typeof translations] || translations.es
 
     useEffect(() => {
         if (isOpen && !isScriptLoaded) {
@@ -71,7 +74,7 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                 {/* HubSpot Meetings Widget Container - Sin contenedor adicional */}
                 <div 
                     className="meetings-iframe-container" 
-                    data-src="https://meetings.hubspot.com/sebastian-jimenez-trujillo/lahausai-demo?embed=true"
+                    data-src={t.booking.meetingUrl}
                     style={{ width: '100%', height: '100%' }}
                 />
             </div>
