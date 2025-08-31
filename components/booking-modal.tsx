@@ -54,32 +54,26 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             {/* Backdrop */}
             <div 
-                className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                className="absolute inset-0 bg-black/80 backdrop-blur-sm"
                 onClick={onClose}
             />
             
-            {/* Modal - Ajustado al contenido del widget */}
-            <div className="relative w-full max-w-4xl bg-white rounded-lg shadow-2xl overflow-hidden mx-4" 
-                 style={{ height: 'min(90vh, 750px)' }}>
-                {/* Header minimalista */}
-                <div className="absolute top-4 right-4 z-10">
-                    <button
-                        onClick={onClose}
-                        className="p-2 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all"
-                        aria-label="Cerrar modal">
-                        <X className="w-6 h-6" style={{ color: '#00251D' }} />
-                    </button>
-                </div>
+            {/* Modal - Sin marco, solo el calendario */}
+            <div className="relative" style={{ width: 'min(90vw, 1000px)', height: 'min(90vh, 750px)' }}>
+                {/* Botón de cerrar flotante */}
+                <button
+                    onClick={onClose}
+                    className="absolute -top-14 right-0 z-10 p-3 bg-white hover:bg-gray-100 rounded-full shadow-xl transition-all"
+                    aria-label="Cerrar modal">
+                    <X className="w-6 h-6" style={{ color: '#00251D' }} />
+                </button>
                 
-                {/* Content - Widget centrado */}
-                <div className="h-full flex items-center justify-center overflow-y-auto">
-                    {/* HubSpot Meetings Widget Container */}
-                    <div 
-                        className="meetings-iframe-container w-full" 
-                        data-src="https://meetings.hubspot.com/sebastian-jimenez-trujillo/lahausai-demo?embed=true"
-                        style={{ height: '100%', minHeight: '600px' }}
-                    />
-                </div>
+                {/* HubSpot Meetings Widget Container - Sin contenedor adicional */}
+                <div 
+                    className="meetings-iframe-container" 
+                    data-src="https://meetings.hubspot.com/sebastian-jimenez-trujillo/lahausai-demo?embed=true"
+                    style={{ width: '100%', height: '100%' }}
+                />
             </div>
         </div>
     )
