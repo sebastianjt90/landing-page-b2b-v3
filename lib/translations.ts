@@ -128,7 +128,7 @@ export const translations = {
       title1: 'Every hour without AI',
       title2: ', you\'re losing potential buyers',
       subtitle: 'Join developers, realtors and teams that never miss another lead',
-      button: 'Schedule a demo'
+      button: 'Book a demo'
     },
     faqs: {
       title: 'Frequently Asked Questions',
