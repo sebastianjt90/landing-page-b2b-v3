@@ -1,9 +1,13 @@
 import type { Metadata } from 'next'
 import '@/app/globals.css'
+import { baseMetadata, enMetadata } from '@/app/metadata'
 
-export const metadata: Metadata = {
-  title: 'LaHaus AI - B2B Landing Page',
-  description: 'AI Assistant for Real Estate',
+export async function generateMetadata({
+  params,
+}: {
+  params: { locale: string }
+}): Promise<Metadata> {
+  return params.locale === 'en' ? enMetadata : baseMetadata
 }
 
 export default function LocaleLayout({
