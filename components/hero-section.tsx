@@ -2,11 +2,10 @@ import React from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
-import { TextEffect } from '@/components/ui/text-effect'
 import { AnimatedGroup } from '@/components/ui/animated-group'
 import { Header } from '@/components/header'
 import StatsSection from '@/components/stats'
-import Features from '@/components/features-4'
+import FeaturesSection from '@/components/features-5'
 import IntegrationsSection from '@/components/integrations-7'
 import CallToAction from '@/components/call-to-action'
 import FAQsTwo from '@/components/faqs-2'
@@ -46,7 +45,7 @@ export function HeroSection() {
                     <div className="h-320 absolute left-0 top-0 w-60 -rotate-45 rounded-full bg-[radial-gradient(50%_50%_at_50%_50%,hsla(0,0%,85%,.06)_0,hsla(0,0%,45%,.02)_80%,transparent_100%)] [translate:5%_-50%]" />
                     <div className="h-320 -translate-y-87.5 absolute left-0 top-0 w-60 -rotate-45 bg-[radial-gradient(50%_50%_at_50%_50%,hsla(0,0%,85%,.04)_0,hsla(0,0%,45%,.02)_80%,transparent_100%)]" />
                 </div>
-                <section>
+                <section style={{ backgroundColor: '#F2F4F8' }}>
                     <div className="relative pt-24 md:pt-36">
                         <AnimatedGroup
                             variants={{
@@ -89,22 +88,15 @@ export function HeroSection() {
                         <div className="mx-auto max-w-7xl px-6">
                             <div className="text-center sm:mx-auto lg:mr-auto lg:mt-0">
                                 <h1 
-                                    className="mx-auto mt-8 max-w-5xl text-balance text-5xl font-semibold md:text-6xl lg:mt-16 xl:text-[4.5rem]"
+                                    className="mx-auto mt-8 max-w-5xl text-balance text-4xl font-semibold sm:text-5xl md:text-6xl lg:mt-16 xl:text-[4.5rem] px-4 sm:px-0"
                                     style={{ fontFamily: "'LaHaus Display', system-ui, sans-serif", fontWeight: 600 }}>
                                     <span style={{ color: '#E19BFF' }}>Asistente IA</span>
                                     <span style={{ color: '#00251D' }}> que responde en segundos y agenda citas automáticamente</span>
                                 </h1>
-                                <TextEffect
-                                    per="line"
-                                    preset="fade-in-blur"
-                                    speedSegment={0.3}
-                                    delay={0.5}
-                                    trigger={true}
-                                    as="p"
-                                    className="mx-auto mt-8 max-w-2xl text-balance text-lg"
+                                <p className="mx-auto mt-8 max-w-2xl text-balance text-base sm:text-lg px-4 sm:px-0" 
                                     style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif" }}>
-                                    Constructores, inmobiliarias y desarrolladores que han integrado nuestra solución han incrementado sus ventas hasta un 35%
-                                </TextEffect>
+                                    Desarrolladores e inmobiliarias que han integrado nuestra solución han incrementado sus ventas <strong>hasta un 35%</strong>
+                                </p>
 
                                 <AnimatedGroup
                                     variants={{
@@ -120,12 +112,11 @@ export function HeroSection() {
                                     }}
                                     className="mt-12 flex justify-center">
                                     <div
-                                        key={1}
-                                        className="bg-foreground/10 rounded-[calc(var(--radius-xl)+0.125rem)] border p-0.5">
+                                        key={1}>
                                         <Button
                                             asChild
                                             size="lg"
-                                            className="rounded-xl px-5 text-base"
+                                            className="rounded-xl px-5 text-base bg-[#00251D] hover:bg-[#00251D]/90 text-white shadow-none border-0"
                                             style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif" }}>
                                             <Link href="#link">
                                                 <span className="text-nowrap">Agenda un demo</span>
@@ -167,10 +158,10 @@ export function HeroSection() {
                     </div>
                 </section>
                 <StatsSection />
-                <Features />
+                <FeaturesSection />
                 <IntegrationsSection />
-                <FAQsTwo />
                 <CallToAction />
+                <FAQsTwo />
                 <FooterSection />
             </main>
         </>

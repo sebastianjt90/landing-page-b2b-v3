@@ -30,6 +30,7 @@ export const Header = () => {
                         <Button
                             asChild
                             size="sm"
+                            className="bg-[#00251D] hover:bg-[#00251D]/90 text-white shadow-none"
                             style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif" }}>
                             <Link href="#">
                                 <span>Agenda un demo</span>
