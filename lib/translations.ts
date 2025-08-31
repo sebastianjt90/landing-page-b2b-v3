@@ -5,7 +5,7 @@ export const translations = {
     },
     hero: {
       titleHighlight: 'Asistente IA',
-      titleMain: 'que responde en segundos y agenda citas automáticamente',
+      titleMain: 'que responde en segundos y agenda más citas automáticamente',
       subtitle: 'Desarrolladores e inmobiliarias que han integrado nuestra solución han incrementado sus ventas hasta un 35%',
       cta: 'Agenda un demo',
       mainImage: '/lahaus360.png',
@@ -91,7 +91,7 @@ export const translations = {
     },
     hero: {
       titleHighlight: 'AI Assistant',
-      titleMain: 'that answers instantly and books showings automatically',
+      titleMain: 'that answers instantly and books more showings',
       subtitle: 'Developers, realtors and teams using our solution have increased their closings up to 35%',
       cta: 'Book a demo',
       mainImage: '/lahaus360-en.png',

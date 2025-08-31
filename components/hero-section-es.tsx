@@ -96,7 +96,7 @@ export function HeroSectionES() {
                                     className="mx-auto mt-8 max-w-5xl text-balance text-4xl font-semibold sm:text-5xl md:text-6xl lg:mt-16 xl:text-[4.5rem] px-4 sm:px-0"
                                     style={{ fontFamily: "'LaHaus Display', system-ui, sans-serif", fontWeight: 600 }}>
                                     <span style={{ color: '#E19BFF' }}>Asistente IA</span>
-                                    <span style={{ color: '#00251D' }}> que responde en segundos y agenda citas automáticamente</span>
+                                    <span style={{ color: '#00251D' }}> que responde en segundos y agenda más citas automáticamente</span>
                                 </h1>
                                 <p className="mx-auto mt-8 max-w-2xl text-balance text-base sm:text-lg px-4 sm:px-0" 
                                     style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif" }}>
