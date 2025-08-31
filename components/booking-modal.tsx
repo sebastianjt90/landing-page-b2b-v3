@@ -51,43 +51,31 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
     if (!isOpen) return null
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
             {/* Backdrop */}
             <div 
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                className="absolute inset-0 bg-black/70 backdrop-blur-sm"
                 onClick={onClose}
             />
             
-            {/* Modal */}
-            <div className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl max-h-[90vh] overflow-hidden">
-                {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b" style={{ backgroundColor: '#F2F4F8' }}>
-                    <h2 
-                        className="text-xl font-semibold"
-                        style={{ fontFamily: "'LaHaus Display', system-ui, sans-serif", color: '#00251D' }}>
-                        Agenda tu demo personalizado
-                    </h2>
+            {/* Modal - Más minimalista y maximizado */}
+            <div className="relative w-full max-w-5xl h-[95vh] bg-white rounded-lg shadow-2xl overflow-hidden mx-4">
+                {/* Header minimalista */}
+                <div className="absolute top-4 right-4 z-10">
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-black/5 rounded-lg transition-colors"
+                        className="p-2 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all"
                         aria-label="Cerrar modal">
-                        <X className="w-5 h-5" style={{ color: '#00251D' }} />
+                        <X className="w-6 h-6" style={{ color: '#00251D' }} />
                     </button>
                 </div>
                 
-                {/* Content */}
-                <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 80px)' }}>
-                    <p 
-                        className="mb-6 text-center"
-                        style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif", color: '#00251D' }}>
-                        Selecciona el día y hora que mejor te convenga. Recibirás una confirmación por correo.
-                    </p>
-                    
-                    {/* HubSpot Meetings Widget Container */}
+                {/* Content - Sin padding excesivo */}
+                <div className="h-full overflow-y-auto">
+                    {/* HubSpot Meetings Widget Container - Ocupa todo el espacio */}
                     <div 
-                        className="meetings-iframe-container" 
+                        className="meetings-iframe-container h-full" 
                         data-src="https://meetings.hubspot.com/sebastian-jimenez-trujillo/lahausai-demo?embed=true"
-                        style={{ minHeight: '600px' }}
                     />
                 </div>
             </div>
