@@ -58,8 +58,9 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                 onClick={onClose}
             />
             
-            {/* Modal - Más minimalista y maximizado */}
-            <div className="relative w-full max-w-5xl h-[95vh] bg-white rounded-lg shadow-2xl overflow-hidden mx-4">
+            {/* Modal - Ajustado al contenido del widget */}
+            <div className="relative w-full max-w-4xl bg-white rounded-lg shadow-2xl overflow-hidden mx-4" 
+                 style={{ height: 'min(90vh, 750px)' }}>
                 {/* Header minimalista */}
                 <div className="absolute top-4 right-4 z-10">
                     <button
@@ -70,12 +71,13 @@ export function BookingModal({ isOpen, onClose }: BookingModalProps) {
                     </button>
                 </div>
                 
-                {/* Content - Sin padding excesivo */}
-                <div className="h-full overflow-y-auto">
-                    {/* HubSpot Meetings Widget Container - Ocupa todo el espacio */}
+                {/* Content - Widget centrado */}
+                <div className="h-full flex items-center justify-center overflow-y-auto">
+                    {/* HubSpot Meetings Widget Container */}
                     <div 
-                        className="meetings-iframe-container h-full" 
+                        className="meetings-iframe-container w-full" 
                         data-src="https://meetings.hubspot.com/sebastian-jimenez-trujillo/lahausai-demo?embed=true"
+                        style={{ height: '100%', minHeight: '600px' }}
                     />
                 </div>
             </div>
