@@ -11,69 +11,29 @@ interface BookingModalProps {
 }
 
 export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalProps) {
-    const [isScriptLoaded, setIsScriptLoaded] = useState(false)
-    const [currentLocale, setCurrentLocale] = useState(locale)
+    const [isLoading, setIsLoading] = useState(true)
     const t = translations[locale as keyof typeof translations] || translations.es
-
-    // Reset and reload when locale changes
-    useEffect(() => {
-        if (locale !== currentLocale) {
-            setCurrentLocale(locale)
-            setIsScriptLoaded(false)
-            // Remove existing iframe containers to force reload
-            const containers = document.querySelectorAll('.meetings-iframe-container iframe')
-            containers.forEach(container => container.remove())
-        }
-    }, [locale, currentLocale])
-
-    useEffect(() => {
-        if (isOpen && !isScriptLoaded) {
-            // Small delay to ensure DOM is ready
-            const timer = setTimeout(() => {
-                // Load HubSpot meetings embed script
-                const existingScript = document.querySelector('script[src="https://static.hsappstatic.net/MeetingsEmbed/ex/MeetingsEmbedCode.js"]')
-                
-                if (existingScript) {
-                    // Script already loaded, just reinitialize
-                    if (window.HubSpotMeetings) {
-                        window.HubSpotMeetings.init()
-                    }
-                    setIsScriptLoaded(true)
-                } else {
-                    // Load script for the first time
-                    const script = document.createElement('script')
-                    script.src = 'https://static.hsappstatic.net/MeetingsEmbed/ex/MeetingsEmbedCode.js'
-                    script.async = true
-                    script.onload = () => {
-                        setIsScriptLoaded(true)
-                        if (window.HubSpotMeetings) {
-                            window.HubSpotMeetings.init()
-                        }
-                    }
-                    document.body.appendChild(script)
-                }
-            }, 100)
-
-            return () => clearTimeout(timer)
-        }
-    }, [isOpen, isScriptLoaded, locale])
 
     useEffect(() => {
         // Prevent scroll when modal is open
         if (isOpen) {
             document.body.style.overflow = 'hidden'
+            setIsLoading(true)
         } else {
             document.body.style.overflow = 'unset'
-            // Clean up iframe when modal closes
-            const containers = document.querySelectorAll('.meetings-iframe-container iframe')
-            containers.forEach(container => container.remove())
-            setIsScriptLoaded(false)
         }
 
         return () => {
             document.body.style.overflow = 'unset'
         }
     }, [isOpen])
+
+    const handleIframeLoad = () => {
+        // Dar un poco más de tiempo para que el contenido del iframe se renderice
+        setTimeout(() => {
+            setIsLoading(false)
+        }, 1000)
+    }
 
     if (!isOpen) return null
 
@@ -86,32 +46,41 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
             />
             
             {/* Modal - Sin marco, solo el calendario */}
-            <div className="relative" style={{ width: 'min(90vw, 1000px)', height: 'min(90vh, 750px)' }}>
+            <div className="relative bg-white rounded-lg shadow-2xl" style={{ width: 'min(90vw, 1000px)', height: 'min(90vh, 750px)' }}>
                 {/* Botón de cerrar flotante */}
                 <button
                     onClick={onClose}
-                    className="absolute -top-14 right-0 z-10 p-3 bg-white hover:bg-gray-100 rounded-full shadow-xl transition-all"
-                    aria-label="Cerrar modal">
-                    <X className="w-6 h-6" style={{ color: '#00251D' }} />
+                    className="absolute -top-12 right-0 z-10 p-2 bg-white hover:bg-gray-100 rounded-full shadow-lg transition-all"
+                    aria-label={locale === 'en' ? 'Close modal' : 'Cerrar modal'}>
+                    <X className="w-5 h-5" style={{ color: '#00251D' }} />
                 </button>
                 
-                {/* HubSpot Meetings Widget Container - Sin contenedor adicional */}
-                <div 
-                    key={`hubspot-meeting-${locale}`}
-                    className="meetings-iframe-container" 
-                    data-src={t.booking.meetingUrl}
-                    style={{ width: '100%', height: '100%' }}
+                {/* Loading indicator */}
+                {isLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-white rounded-lg z-10">
+                        <div className="text-center">
+                            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]" style={{ borderColor: '#00251D', borderRightColor: 'transparent' }}>
+                                <span className="sr-only">Cargando...</span>
+                            </div>
+                            <p className="mt-2 text-sm text-gray-600">
+                                {locale === 'en' ? 'Loading calendar...' : 'Cargando calendario...'}
+                            </p>
+                        </div>
+                    </div>
+                )}
+                
+                {/* HubSpot Meetings iframe */}
+                <iframe
+                    key={locale} // Forzar recreación del iframe cuando cambia el idioma
+                    src={t.booking.meetingUrl}
+                    width="100%"
+                    height="100%"
+                    frameBorder="0"
+                    className="rounded-lg"
+                    onLoad={handleIframeLoad}
+                    title={locale === 'en' ? 'Schedule a meeting' : 'Agendar una reunión'}
                 />
             </div>
         </div>
     )
-}
-
-// Type declaration for HubSpot
-declare global {
-    interface Window {
-        HubSpotMeetings: {
-            init: () => void
-        }
-    }
 }
