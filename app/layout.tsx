@@ -11,14 +11,5 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body
-        className="antialiased"
-        style={{ fontFamily: "'LaHaus Display', system-ui, sans-serif" }}
-      >
-        {children}
-      </body>
-    </html>
-  );
+  return children;
 }

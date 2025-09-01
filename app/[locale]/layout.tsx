@@ -19,7 +19,12 @@ export default function LocaleLayout({
 }) {
   return (
     <html lang={locale}>
-      <body>{children}</body>
+      <body
+        className="antialiased"
+        style={{ fontFamily: "'LaHaus Display', system-ui, sans-serif" }}
+      >
+        {children}
+      </body>
     </html>
   )
 }

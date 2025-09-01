@@ -46,11 +46,11 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
             />
             
             {/* Modal - Sin marco, solo el calendario */}
-            <div className="relative bg-white rounded-lg shadow-2xl" style={{ width: 'min(90vw, 1000px)', height: 'min(90vh, 750px)' }}>
+            <div className="relative overflow-hidden rounded-lg shadow-2xl" style={{ width: 'min(90vw, 1000px)', height: 'min(90vh, 750px)' }}>
                 {/* Botón de cerrar flotante */}
                 <button
                     onClick={onClose}
-                    className="absolute -top-12 right-0 z-10 p-2 bg-white hover:bg-gray-100 rounded-full shadow-lg transition-all"
+                    className="absolute -top-12 right-0 z-20 p-2 bg-white hover:bg-gray-100 rounded-full shadow-lg transition-all"
                     aria-label={locale === 'en' ? 'Close modal' : 'Cerrar modal'}>
                     <X className="w-5 h-5" style={{ color: '#00251D' }} />
                 </button>
@@ -69,17 +69,30 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                     </div>
                 )}
                 
-                {/* HubSpot Meetings iframe */}
-                <iframe
-                    key={locale} // Forzar recreación del iframe cuando cambia el idioma
-                    src={t.booking.meetingUrl}
-                    width="100%"
-                    height="100%"
-                    frameBorder="0"
-                    className="rounded-lg"
-                    onLoad={handleIframeLoad}
-                    title={locale === 'en' ? 'Schedule a meeting' : 'Agendar una reunión'}
-                />
+                {/* HubSpot Meetings iframe - Ajustado para ocultar solo el header del iframe */}
+                <div className="absolute inset-0" style={{ 
+                    paddingTop: '0px',
+                    overflow: 'hidden'
+                }}>
+                    <iframe
+                        key={locale} // Forzar recreación del iframe cuando cambia el idioma
+                        src={t.booking.meetingUrl}
+                        width="100%"
+                        height="100%"
+                        frameBorder="0"
+                        style={{ 
+                            border: 'none',
+                            borderRadius: '0',
+                            transform: 'scale(1.02)',
+                            transformOrigin: 'top center',
+                            width: 'calc(100% / 1.02)',
+                            height: 'calc(100% / 1.02)',
+                            marginTop: '-20px'
+                        }}
+                        onLoad={handleIframeLoad}
+                        title={locale === 'en' ? 'Schedule a meeting' : 'Agendar una reunión'}
+                    />
+                </div>
             </div>
         </div>
     )
