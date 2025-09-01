@@ -93,8 +93,8 @@ export const translations = {
     },
     hero: {
       titleHighlight: 'Your AI Assistant:',
-      titleMain: 'Instant answers, automatic scheduling, more closings'
-      subtitle: 'Built for real estate. Trusted by top producers, teams, and developers to close up to 35% more deals'
+      titleMain: 'Instant answers, automatic scheduling, more closings',
+      subtitle: 'Built for real estate. Trusted by top producers, teams, and developers to close up to 35% more deals',
       cta: 'Book a demo',
       mainImage: '/lahaus360-en.png',
       mainImageAlt: 'LaHaus AI Dashboard'
@@ -111,7 +111,7 @@ export const translations = {
     },
     features: {
       title: 'Your top AI assistant that never sleeps',
-      subtitle: 'While your team focuses on closing deals, the AI assistant qualifies and nurtures every lead automatically'
+      subtitle: 'While your team focuses on closing deals, the AI assistant qualifies and nurtures every lead automatically',
       items: [
         'AI trained specifically for real estate',
         'Instant answers 24/7/365',
@@ -134,7 +134,7 @@ export const translations = {
     },
     faqs: {
       title: 'Frequently Asked Questions',
-      subtitle: 'Everything developers, realtors and teams need to know about our AI assistant'
+      subtitle: 'Everything developers, realtors and teams need to know about our AI assistant',
       items: [
         {
           question: 'How long does it take to implement the AI assistant?',
