@@ -94,7 +94,7 @@ export const translations = {
     hero: {
       titleHighlight: 'AI Assistant',
       titleMain: 'that answers instantly and books more showings',
-      subtitle: 'Developers, realtors and teams using our solution have increased their closings up to 35%',
+      subtitle: 'Developers, realtors and teams using our solution have increased their sales up to 35%',
       cta: 'Book a demo',
       mainImage: '/lahaus360-en.png',
       mainImageAlt: 'LaHaus AI Dashboard'
