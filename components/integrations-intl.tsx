@@ -61,6 +61,9 @@ export default function IntegrationsSection({ locale }: IntegrationsSectionProps
                                 <IntegrationCard name="SmartHome">
                                     <Image src="/integrations/smarthome.png" alt="SmartHome" width={32} height={32} className="object-contain" />
                                 </IntegrationCard>
+                                <IntegrationCard name="Follow Up Boss">
+                                    <Image src="/fub.png" alt="Follow Up Boss" width={36} height={36} className="object-contain" />
+                                </IntegrationCard>
                             </InfiniteSlider>
                         </div>
                         <div>
