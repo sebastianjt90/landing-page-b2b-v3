@@ -93,14 +93,14 @@ export const translations = {
     },
     hero: {
       titleHighlight: 'Your AI Assistant:',
-      titleMain: 'Instant answers, automatic scheduling, more closings.',
-      subtitle: 'Built for real estate. Trusted by top producers, teams, and developers to close up to 35% more deals.',
+      titleMain: 'Instant answers, automatic scheduling, more closings'
+      subtitle: 'Built for real estate. Trusted by top producers, teams, and developers to close up to 35% more deals'
       cta: 'Book a demo',
       mainImage: '/lahaus360-en.png',
       mainImageAlt: 'LaHaus AI Dashboard'
     },
     stats: {
-      title: 'From missed leads to closing more deals',
+      title: 'Close more deals, don\'t miss out on leads',
       subtitle: 'See how top realtors, teams, and developers use LaHaus AI to supercharge their sales pipeline',
       availability: '24/7 availability',
       waitTime: 'Faster response time',
@@ -110,8 +110,8 @@ export const translations = {
       salesIncrease: 'Increase in closings'
     },
     features: {
-      title: 'Your top agent that never sleeps',
-      subtitle: 'While your team focuses on closing deals, the AI assistant qualifies and nurtures every lead automatically.',
+      title: 'Your top AI assistant that never sleeps',
+      subtitle: 'While your team focuses on closing deals, the AI assistant qualifies and nurtures every lead automatically'
       items: [
         'AI trained specifically for real estate',
         'Instant answers 24/7/365',
@@ -134,22 +134,22 @@ export const translations = {
     },
     faqs: {
       title: 'Frequently Asked Questions',
-      subtitle: 'Everything developers, realtors and teams need to know about our AI assistant.',
+      subtitle: 'Everything developers, realtors and teams need to know about our AI assistant'
       items: [
         {
           question: 'How long does it take to implement the AI assistant?',
-          answer: 'Implementation takes 7 business days in 3 simple steps: first, we customize the agent with your brokerage or team branding, then we train it with your listings and property information, and finally integrate it with your CRM and showing calendars.'
+          answer: 'Implementation takes 7 business days in 3 simple steps: first, we customize the AI assistant with your brokerage or team branding, then we train it with your listings and property information, and finally integrate it with your CRM and showing calendars.'
         },
         {
           question: 'Which lead sources can the assistant handle?',
           answer: 'All lead generation sources: Facebook, Instagram, Google Ads, Zillow, Realtor.com, your website, WhatsApp, text messaging, and any platform you use. The assistant captures and answers leads wherever they come from.'
         },
         {
-          question: 'Can I customize the agent with my brokerage branding?',
-          answer: 'Absolutely! The agent is fully white-labeled with your brokerage or team name, logo, and brand identity. It uses your brand colors, communication style, and maintains your professional image across all interactions.'
+          question: 'Can I customize the AI assistant with my brokerage branding?',
+          answer: 'Absolutely! The AI assistant is fully white-labeled with your brokerage or team name, logo, and brand identity. It uses your brand colors, communication style, and maintains your professional image across all interactions.'
         },
         {
-          question: 'Can the agent handle multiple listings and developments?',
+          question: 'Can the AI assistant handle multiple listings and developments?',
           answer: 'Yes, it\'s designed to manage your entire portfolio. Whether you\'re a developer with multiple projects, a realtor with various listings, or a team with diverse properties, the AI can intelligently match buyers with the right properties based on their needs and preferences.'
         },
         {
@@ -157,8 +157,8 @@ export const translations = {
           answer: 'Yes! Through the LaHaus AI dashboard, you have full visibility into all conversations, lead quality scores, conversion metrics, and detailed analytics. You can review transcripts, track performance, and optimize your lead nurturing strategy.'
         },
         {
-          question: 'Will the AI replace my agents or team members?',
-          answer: 'No, the AI enhances your team\'s productivity. It handles initial lead qualification and appointment scheduling 24/7, allowing your agents to focus on high-value activities like showing properties and closing deals. Think of it as your team\'s tireless assistant that ensures no lead falls through the cracks.'
+          question: 'Will the AI assistant replace my team members?',
+          answer: 'No, the AI assistant enhances your team\'s productivity. It handles initial lead qualification and appointment scheduling 24/7, allowing your team to focus on high-value activities like showing properties and closing deals. Think of it as your team\'s tireless assistant that ensures no lead falls through the cracks.'
         }
       ]
     },
