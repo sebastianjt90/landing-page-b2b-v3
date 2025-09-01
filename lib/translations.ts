@@ -92,16 +92,16 @@ export const translations = {
       bookDemo: 'Book a demo'
     },
     hero: {
-      titleHighlight: 'AI Assistant',
-      titleMain: 'that answers instantly and books more showings',
-      subtitle: 'Developers, realtors and teams using our solution have increased their sales up to 35%',
+      titleHighlight: 'Your AI Assistant:',
+      titleMain: 'Instant answers, automatic scheduling, more closings.',
+      subtitle: 'Built for real estate. Trusted by top producers, teams, and developers to close up to 35% more deals.',
       cta: 'Book a demo',
       mainImage: '/lahaus360-en.png',
       mainImageAlt: 'LaHaus AI Dashboard'
     },
     stats: {
       title: 'From missed leads to closing more deals',
-      subtitle: 'See how developers, realtors and, teams like yours transformed their sales pipeline',
+      subtitle: 'See how top realtors, teams, and developers use LaHaus AI to supercharge their sales pipeline',
       availability: '24/7 availability',
       waitTime: 'Faster response time',
       qualifiedAppointments: 'More qualified showings',
@@ -123,8 +123,8 @@ export const translations = {
       chatGifAlt: 'LaHaus AI Chat Demo'
     },
     integrations: {
-      title: 'Works with your existing workflow',
-      subtitle: 'Seamlessly integrates with the tools developers, realtors and teams already use. Captures leads from all sources and automatically syncs with your CRM and calendars.'
+      title: 'Plays nice with the tools you already use',
+      subtitle: 'Designed for real estate workflows. LaHaus AI syncs with the platforms and lead sources top producers, teams, and developers already rely on.'
     },
     cta: {
       title1: 'Every hour without AI',

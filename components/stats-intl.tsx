@@ -106,7 +106,7 @@ export default function StatsSection({ locale }: StatsSectionProps) {
 
                 <div className="grid gap-12 divide-y *:text-center md:grid-cols-3 md:gap-2 md:divide-x md:divide-y-0">
                     <AnimatedStat value="24/7" label={t.stats.availability} />
-                    <AnimatedStat value="-65%" label={t.stats.waitTime} isNegative />
+                    <AnimatedStat value="65%" label={t.stats.waitTime} />
                     <AnimatedStat value="3.5x" label={t.stats.qualifiedAppointments} />
                 </div>
 
