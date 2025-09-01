@@ -2,21 +2,26 @@ import type { Metadata } from 'next'
 import '@/app/globals.css'
 import { baseMetadata, enMetadata } from '@/app/metadata'
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { locale: string }
-}): Promise<Metadata> {
-  return params.locale === 'en' ? enMetadata : baseMetadata
+type Props = {
+  params: Promise<{ locale: string }>
 }
 
-export default function LocaleLayout({
+export async function generateMetadata({
+  params,
+}: Props): Promise<Metadata> {
+  const { locale } = await params
+  return locale === 'en' ? enMetadata : baseMetadata
+}
+
+export default async function LocaleLayout({
   children,
-  params: { locale }
+  params
 }: {
   children: React.ReactNode
-  params: { locale: string }
+  params: Promise<{ locale: string }>
 }) {
+  const { locale } = await params
+  
   return (
     <html lang={locale}>
       <body
