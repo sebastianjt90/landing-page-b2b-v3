@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { translations } from '@/lib/translations'
 
 interface StatProps {
     value: string
@@ -85,29 +86,34 @@ function AnimatedStat({ value, label, isNegative = false }: StatProps) {
     )
 }
 
-export default function StatsSection() {
+interface StatsSectionProps {
+    locale: 'es' | 'en'
+}
+
+export default function StatsSection({ locale }: StatsSectionProps) {
+    const t = translations[locale]
     return (
         <section className="py-12 md:py-20 bg-background">
             <div className="mx-auto max-w-5xl space-y-8 px-6 md:space-y-16">
                 <div className="relative z-10 mx-auto max-w-3xl space-y-6 text-center">
                     <h2 className="text-4xl font-medium lg:text-5xl" style={{ fontFamily: "'LaHaus Display', system-ui, sans-serif", fontWeight: 600 }}>
-                        De perder oportunidades a cerrar más ventas
+                        {t.stats.title}
                     </h2>
                     <p style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif" }}>
-                        Mira cómo desarrolladores e inmobiliarias como la tuya transformaron su proceso comercial
+                        {t.stats.subtitle}
                     </p>
                 </div>
 
                 <div className="grid gap-12 divide-y *:text-center md:grid-cols-3 md:gap-2 md:divide-x md:divide-y-0">
-                    <AnimatedStat value="24/7" label="Disponibilidad total" />
-                    <AnimatedStat value="-65%" label="Menos tiempo de espera" isNegative />
-                    <AnimatedStat value="3.5x" label="Más citas calificadas" />
+                    <AnimatedStat value="24/7" label={t.stats.availability} />
+                    <AnimatedStat value="-65%" label={t.stats.waitTime} isNegative />
+                    <AnimatedStat value="3.5x" label={t.stats.qualifiedAppointments} />
                 </div>
 
                 <div className="grid gap-12 divide-y *:text-center md:grid-cols-3 md:gap-2 md:divide-x md:divide-y-0 mt-12">
-                    <AnimatedStat value="+50K" label="Conversaciones exitosas" />
-                    <AnimatedStat value="98%" label="Clientes satisfechos" />
-                    <AnimatedStat value="+35%" label="Incremento final en ventas" />
+                    <AnimatedStat value="+50K" label={t.stats.successfulConversations} />
+                    <AnimatedStat value="98%" label={t.stats.satisfiedCustomers} />
+                    <AnimatedStat value="+35%" label={t.stats.salesIncrease} />
                 </div>
             </div>
         </section>

@@ -1,7 +1,13 @@
 import { Logo } from '@/components/logo'
 import Link from 'next/link'
+import { translations } from '@/lib/translations'
 
-export default function FooterSection() {
+interface FooterSectionProps {
+    locale: 'es' | 'en'
+}
+
+export default function FooterSection({ locale }: FooterSectionProps) {
+    const t = translations[locale]
     return (
         <footer className="py-8 md:py-12" style={{ backgroundColor: '#F2F4F8' }}>
             <div className="mx-auto max-w-5xl px-6">
@@ -100,7 +106,7 @@ export default function FooterSection() {
                     </Link>
                 </div>
                 <span className="text-muted-foreground block text-center text-sm" style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif" }}> 
-                    © {new Date().getFullYear()} LaHaus AI - Todos los derechos reservados
+                    © {new Date().getFullYear()} LaHaus AI - {t.footer.copyright}
                 </span>
             </div>
         </footer>

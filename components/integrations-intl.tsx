@@ -4,8 +4,14 @@ import Link from 'next/link'
 import { InfiniteSlider } from '@/components/ui/infinite-slider'
 import { Logo } from '@/components/logo'
 import Image from 'next/image'
+import { translations } from '@/lib/translations'
 
-export default function IntegrationsSection() {
+interface IntegrationsSectionProps {
+    locale: 'es' | 'en'
+}
+
+export default function IntegrationsSection({ locale }: IntegrationsSectionProps) {
+    const t = translations[locale]
     return (
         <section>
             <div className="dark:bg-background py-24 md:py-32" style={{ backgroundColor: '#F2F4F8' }}>
@@ -88,8 +94,8 @@ export default function IntegrationsSection() {
                         </div>
                     </div>
                     <div className="mx-auto mt-12 max-w-lg space-y-6 text-center">
-                        <h2 className="text-balance text-3xl font-semibold md:text-4xl" style={{ fontFamily: "'LaHaus Display', system-ui, sans-serif", fontWeight: 600 }}>Sin cambiar tu forma de trabajar</h2>
-                        <p style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif", color: '#00251D' }}>Se integra en minutos con las herramientas que tu equipo ya domina. Atiende todos los canales de generación de demanda y sincroniza automáticamente con tu CRM y calendarios de tu equipo.</p>
+                        <h2 className="text-balance text-3xl font-semibold md:text-4xl" style={{ fontFamily: "'LaHaus Display', system-ui, sans-serif", fontWeight: 600 }}>{t.integrations.title}</h2>
+                        <p style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif", color: '#00251D' }}>{t.integrations.subtitle}</p>
                     </div>
                 </div>
             </div>

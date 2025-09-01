@@ -1,7 +1,13 @@
 import { MessageSquare, Brain, Calendar, BarChart3, Phone } from 'lucide-react'
 import Image from 'next/image'
+import { translations } from '@/lib/translations'
 
-export default function FeaturesSection() {
+interface FeaturesSectionProps {
+    locale: 'es' | 'en'
+}
+
+export default function FeaturesSection({ locale }: FeaturesSectionProps) {
+    const t = translations[locale]
     return (
         <section className="py-16 md:py-32 bg-white">
             <div className="mx-auto max-w-6xl px-6">
@@ -9,32 +15,32 @@ export default function FeaturesSection() {
                     <div className="lg:col-span-2">
                         <div className="md:pr-6 lg:pr-0">
                             <h2 className="text-4xl font-semibold lg:text-5xl" style={{ fontFamily: "'LaHaus Display', system-ui, sans-serif", fontWeight: 600 }}>
-                                Tu vendedor estrella que nunca descansa
+                                {t.features.title}
                             </h2>
                             <p className="mt-6" style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif" }}>
-                                Mientras tu equipo se enfoca en cerrar ventas, el asistente IA califica y nutre cada lead automáticamente.
+                                {t.features.subtitle}
                             </p>
                         </div>
                         <ul className="mt-8 divide-y border-y *:flex *:items-center *:gap-3 *:py-3">
                             <li style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif" }}>
                                 <Brain className="size-5" style={{ color: '#E19BFF' }} />
-                                IA entrenada en el sector inmobiliario
+                                {t.features.items[0]}
                             </li>
                             <li style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif" }}>
                                 <MessageSquare className="size-5" style={{ color: '#E19BFF' }} />
-                                Respuesta inmediata 24/7
+                                {t.features.items[1]}
                             </li>
                             <li style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif" }}>
                                 <Calendar className="size-5" style={{ color: '#E19BFF' }} />
-                                Agendamiento y confirmación automática
+                                {t.features.items[2]}
                             </li>
                             <li style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif" }}>
                                 <Phone className="size-5" style={{ color: '#E19BFF' }} />
-                                Responde por chat y llamadas por voz con IA
+                                {t.features.items[3]}
                             </li>
                             <li style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif" }}>
                                 <BarChart3 className="size-5" style={{ color: '#E19BFF' }} />
-                                Analytics y reportes detallados
+                                {t.features.items[4]}
                             </li>
                         </ul>
                     </div>
