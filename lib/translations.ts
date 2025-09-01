@@ -110,7 +110,7 @@ export const translations = {
       salesIncrease: 'Increase in closings'
     },
     features: {
-      title: 'Your top AI assistant that never sleeps',
+      title: 'Your AI assistant that never sleeps',
       subtitle: 'While your team focuses on closing deals, the AI assistant qualifies and nurtures every lead automatically',
       items: [
         'AI trained specifically for real estate',
