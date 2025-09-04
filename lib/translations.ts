@@ -85,6 +85,104 @@ export const translations = {
       title: 'Agenda tu demo personalizado',
       subtitle: 'Selecciona el día y hora que mejor te convenga. Recibirás una confirmación por correo.',
       meetingUrl: 'https://meetings.hubspot.com/sebastian-jimenez-trujillo/lahausai-demo?embed=true&lang=es'
+    },
+    login: {
+      title: 'Iniciar sesión',
+      subtitle: 'Accede a tu cuenta de LaHaus AI',
+      email: 'Correo electrónico',
+      emailPlaceholder: 'tu@empresa.com',
+      password: 'Contraseña',
+      passwordPlaceholder: 'Ingresa tu contraseña',
+      forgotPassword: '¿Olvidaste tu contraseña?',
+      submit: 'Iniciar sesión',
+      noAccount: '¿No tienes una cuenta?',
+      signUp: 'Regístrate',
+      or: 'o continúa con',
+      googleSignIn: 'Continuar con Google',
+      microsoftSignIn: 'Continuar con Microsoft'
+    },
+    signup: {
+      title: 'Crea tu cuenta LaHaus AI',
+      subtitle: '¡Bienvenido! Crea una cuenta para comenzar',
+      firstName: 'Nombre',
+      firstNamePlaceholder: 'Juan',
+      lastName: 'Apellido',
+      lastNamePlaceholder: 'Pérez',
+      email: 'Correo electrónico',
+      emailPlaceholder: 'tu@empresa.com',
+      password: 'Contraseña',
+      passwordPlaceholder: 'Crea una contraseña segura',
+      confirmPassword: 'Confirmar contraseña',
+      confirmPasswordPlaceholder: 'Repite tu contraseña',
+      submit: 'Crear cuenta',
+      haveAccount: '¿Ya tienes una cuenta?',
+      signIn: 'Iniciar sesión',
+      or: 'O continúa con',
+      googleSignUp: 'Registrarse con Google',
+      microsoftSignUp: 'Registrarse con Microsoft',
+      terms: 'Al registrarte, aceptas nuestros',
+      termsLink: 'Términos de Servicio',
+      and: 'y',
+      privacyLink: 'Política de Privacidad'
+    },
+    pricing: {
+      title: 'Precios que escalan contigo',
+      subtitle: 'Elige el plan perfecto para tu negocio inmobiliario. Sin costos ocultos, cancela cuando quieras.',
+      monthly: 'Mensual',
+      annual: 'Anual',
+      savePercentage: 'Ahorra 20%',
+      perEditor: 'Por agente',
+      getStarted: 'Comenzar',
+      contactSales: 'Contactar ventas',
+      popular: 'Más popular',
+      plans: {
+        starter: {
+          name: 'Starter',
+          price: '$299',
+          period: '/ mes',
+          description: 'Perfecto para agentes independientes y equipos pequeños',
+          features: [
+            'Hasta 100 conversaciones/mes',
+            'Agendamiento automático',
+            'Integración con 1 calendario',
+            'Respuestas por WhatsApp y web',
+            'Dashboard básico',
+            'Soporte por email'
+          ]
+        },
+        professional: {
+          name: 'Professional',
+          price: '$799',
+          period: '/ mes',
+          description: 'Ideal para equipos en crecimiento y desarrolladoras',
+          features: [
+            'Todo en Starter',
+            'Hasta 500 conversaciones/mes',
+            'Llamadas por voz con IA',
+            'Integración con CRM',
+            'Múltiples calendarios',
+            'Analytics avanzado',
+            'Personalización de marca',
+            'API access',
+            'Soporte prioritario 24/7',
+            'Training incluido'
+          ]
+        },
+        enterprise: {
+          name: 'Enterprise',
+          price: 'Personalizado',
+          period: '',
+          description: 'Soluciones a medida para grandes organizaciones',
+          features: [
+            'Todo en Professional',
+            'Conversaciones ilimitadas',
+            'SLA garantizado 99.9%',
+            'Implementación dedicada',
+            'Integraciones personalizadas',
+            'Gerente de cuenta dedicado'
+          ]
+        }
+      }
     }
   },
   en: {
@@ -173,6 +271,104 @@ export const translations = {
       title: 'Book your personalized demo',
       subtitle: 'Select the day and time that works best for you. You will receive an email confirmation.',
       meetingUrl: 'https://meetings.hubspot.com/tomasuribe1/lahaus-ai-en?embed=true&lang=en'
+    },
+    login: {
+      title: 'Sign in',
+      subtitle: 'Access your LaHaus AI account',
+      email: 'Email',
+      emailPlaceholder: 'you@company.com',
+      password: 'Password',
+      passwordPlaceholder: 'Enter your password',
+      forgotPassword: 'Forgot password?',
+      submit: 'Sign in',
+      noAccount: "Don't have an account?",
+      signUp: 'Sign up',
+      or: 'or continue with',
+      googleSignIn: 'Continue with Google',
+      microsoftSignIn: 'Continue with Microsoft'
+    },
+    signup: {
+      title: 'Create your LaHaus AI account',
+      subtitle: 'Welcome! Create an account to get started',
+      firstName: 'First name',
+      firstNamePlaceholder: 'John',
+      lastName: 'Last name',
+      lastNamePlaceholder: 'Doe',
+      email: 'Email',
+      emailPlaceholder: 'you@company.com',
+      password: 'Password',
+      passwordPlaceholder: 'Create a secure password',
+      confirmPassword: 'Confirm password',
+      confirmPasswordPlaceholder: 'Repeat your password',
+      submit: 'Create account',
+      haveAccount: 'Already have an account?',
+      signIn: 'Sign in',
+      or: 'Or continue with',
+      googleSignUp: 'Sign up with Google',
+      microsoftSignUp: 'Sign up with Microsoft',
+      terms: 'By signing up, you agree to our',
+      termsLink: 'Terms of Service',
+      and: 'and',
+      privacyLink: 'Privacy Policy'
+    },
+    pricing: {
+      title: 'Pricing that scales with you',
+      subtitle: 'Choose the perfect plan for your real estate business. No hidden fees, cancel anytime.',
+      monthly: 'Monthly',
+      annual: 'Annual',
+      savePercentage: 'Save 20%',
+      perEditor: 'Per agent',
+      getStarted: 'Get Started',
+      contactSales: 'Contact Sales',
+      popular: 'Most Popular',
+      plans: {
+        starter: {
+          name: 'Starter',
+          price: '$299',
+          period: '/ month',
+          description: 'Perfect for independent agents and small teams',
+          features: [
+            'Up to 100 conversations/month',
+            'Automatic scheduling',
+            '1 calendar integration',
+            'WhatsApp and web responses',
+            'Basic dashboard',
+            'Email support'
+          ]
+        },
+        professional: {
+          name: 'Professional',
+          price: '$799',
+          period: '/ month',
+          description: 'Ideal for growing teams and developers',
+          features: [
+            'Everything in Starter',
+            'Up to 500 conversations/month',
+            'AI voice calls',
+            'CRM integration',
+            'Multiple calendars',
+            'Advanced analytics',
+            'Brand customization',
+            'API access',
+            '24/7 priority support',
+            'Training included'
+          ]
+        },
+        enterprise: {
+          name: 'Enterprise',
+          price: 'Custom',
+          period: '',
+          description: 'Tailored solutions for large organizations',
+          features: [
+            'Everything in Professional',
+            'Unlimited conversations',
+            '99.9% SLA guarantee',
+            'Dedicated implementation',
+            'Custom integrations',
+            'Dedicated account manager'
+          ]
+        }
+      }
     }
   }
 }
