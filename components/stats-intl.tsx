@@ -1,44 +1,19 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { translations } from '@/lib/translations'
 
 interface StatProps {
     value: string
     label: string
-    isNegative?: boolean
 }
 
-function AnimatedStat({ value, label, isNegative = false }: StatProps) {
+function AnimatedStat({ value, label }: StatProps) {
     const [displayValue, setDisplayValue] = useState('0')
     const [hasAnimated, setHasAnimated] = useState(false)
     const statRef = useRef<HTMLDivElement>(null)
     
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting && !hasAnimated) {
-                        setHasAnimated(true)
-                        animateValue()
-                    }
-                })
-            },
-            { threshold: 0.5 }
-        )
-
-        if (statRef.current) {
-            observer.observe(statRef.current)
-        }
-
-        return () => {
-            if (statRef.current) {
-                observer.unobserve(statRef.current)
-            }
-        }
-    }, [hasAnimated])
-
-    const animateValue = () => {
+    const animateValue = useCallback(() => {
         // Extract numeric value and suffix
         const match = value.match(/^([+-]?)(\d+(?:\.\d+)?)(.*)$/)
         if (!match) {
@@ -67,7 +42,32 @@ function AnimatedStat({ value, label, isNegative = false }: StatProps) {
             }
             setDisplayValue(`${sign}${display}${suffix}`)
         }, stepDuration)
-    }
+    }, [value])
+
+    useEffect(() => {
+        const currentRef = statRef.current
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting && !hasAnimated) {
+                        setHasAnimated(true)
+                        animateValue()
+                    }
+                })
+            },
+            { threshold: 0.5 }
+        )
+
+        if (currentRef) {
+            observer.observe(currentRef)
+        }
+
+        return () => {
+            if (currentRef) {
+                observer.unobserve(currentRef)
+            }
+        }
+    }, [hasAnimated, animateValue])
 
     return (
         <div className="space-y-4" ref={statRef}>
