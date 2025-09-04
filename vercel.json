@@ -18,10 +18,6 @@
           "value": "nosniff"
         },
         {
-          "key": "X-Frame-Options",
-          "value": "SAMEORIGIN"
-        },
-        {
           "key": "X-XSS-Protection",
           "value": "1; mode=block"
         },
@@ -31,7 +27,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; frame-src 'self' https://player-vz-711edda5-617.tv.pandavideo.com https://meetings.hubspot.com https://meetings-eu1.hubspot.com https://*.hsforms.com https://*.hubspot.com; connect-src 'self' https: wss:; img-src 'self' data: https: blob:; media-src 'self' https: blob:; font-src 'self' data: https:;"
+          "value": "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; frame-src 'self' https://player-vz-711edda5-617.tv.pandavideo.com https://player.pandavideo.com.br https://meetings.hubspot.com https://meetings-eu1.hubspot.com https://*.hsforms.com https://*.hubspot.com; child-src 'self' https://player-vz-711edda5-617.tv.pandavideo.com https://player.pandavideo.com.br; style-src 'self' 'unsafe-inline' https:; connect-src 'self' https: wss:; img-src 'self' data: https: blob:; media-src 'self' https: blob:; font-src 'self' data: https:;"
         }
       ]
     },
