@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState } from 'react'
-import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import { AnimatedGroup } from '@/components/ui/animated-group'
