@@ -37,12 +37,13 @@ const transitionVariants = {
 
 export function HeroSection({ locale = 'es' }: { locale?: string }) {
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)
-    const t = translations[locale as keyof typeof translations] || translations.es
+    const validLocale = locale === 'en' ? 'en' : 'es'
+    const t = translations[validLocale]
 
     return (
         <>
-            <Header onBookDemo={() => setIsBookingModalOpen(true)} locale={locale} />
-            <WhatsAppButton locale={locale} />
+            <Header onBookDemo={() => setIsBookingModalOpen(true)} locale={validLocale} />
+            <WhatsAppButton locale={validLocale} />
             <main className="overflow-hidden">
                 <div
                     aria-hidden
@@ -96,7 +97,7 @@ export function HeroSection({ locale = 'es' }: { locale?: string }) {
                                 <h1 
                                     className="mx-auto mt-8 max-w-5xl text-balance text-4xl font-semibold sm:text-5xl md:text-6xl lg:mt-16 xl:text-[4.5rem] px-4 sm:px-0"
                                     style={{ fontFamily: "'LaHaus Display', system-ui, sans-serif", fontWeight: 600 }}>
-                                    {locale === 'es' ? (
+                                    {validLocale === 'es' ? (
                                         <>
                                             <span style={{ color: '#00251D' }}>Somos el </span>
                                             <span style={{ color: '#E19BFF' }}>{t.hero.titleHighlight}</span>
@@ -173,19 +174,19 @@ export function HeroSection({ locale = 'es' }: { locale?: string }) {
                         </AnimatedGroup>
                     </div>
                 </section>
-                <StatsSection locale={locale} />
-                <FeaturesSection locale={locale} />
-                <IntegrationsSection locale={locale} />
-                <CallToAction onBookDemo={() => setIsBookingModalOpen(true)} locale={locale} />
-                <FAQsTwo locale={locale} />
-                <FooterSection locale={locale} />
+                <StatsSection locale={validLocale} />
+                <FeaturesSection locale={validLocale} />
+                <IntegrationsSection locale={validLocale} />
+                <CallToAction onBookDemo={() => setIsBookingModalOpen(true)} locale={validLocale} />
+                <FAQsTwo locale={validLocale} />
+                <FooterSection locale={validLocale} />
             </main>
             
             {/* Booking Modal */}
             <BookingModal 
                 isOpen={isBookingModalOpen} 
                 onClose={() => setIsBookingModalOpen(false)}
-                locale={locale}
+                locale={validLocale}
             />
         </>
     )
