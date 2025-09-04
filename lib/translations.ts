@@ -4,9 +4,9 @@ export const translations = {
       bookDemo: 'Agenda un demo'
     },
     hero: {
-      titleHighlight: 'Asistente IA',
-      titleMain: 'que responde en segundos y agenda más citas automáticamente',
-      subtitle: 'Desarrolladores e inmobiliarias que han integrado nuestra solución han incrementado sus ventas hasta un 35%',
+      titleHighlight: 'Asistente IA #1',
+      titleMain: 'en el sector inmobiliario',
+      subtitle: 'Hasta un 35% de incremento en ventas es el resultado obtenido por desarrolladores e inmobiliarias que han integrado nuestra solución',
       cta: 'Agenda un demo',
       mainImage: '/lahaus360.png',
       mainImageAlt: 'LaHaus AI Dashboard'
