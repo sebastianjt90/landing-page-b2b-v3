@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
-import { GoogleTagManager, GoogleTagManagerNoScript } from '@/components/google-tag-manager'
+import { GTMHead, GTMBody } from '@/components/gtm-head'
 import '@/app/globals.css'
 import { baseMetadata, enMetadata } from '@/app/metadata'
 
@@ -30,28 +30,13 @@ export default async function LocaleLayout({
   return (
     <html lang={locale}>
       <head>
-        <Script
-          id="gtm-base"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              window.dataLayer.push({
-                'gtm.start': new Date().getTime(),
-                'event': 'gtm.js'
-              });
-            `,
-          }}
-        />
+        <GTMHead gtmId={GTM_ID} />
       </head>
       <body
         className="antialiased"
         style={{ fontFamily: "'LaHaus Display', system-ui, sans-serif" }}
       >
-        {/* Google Tag Manager */}
-        <GoogleTagManager gtmId={GTM_ID} />
-        {/* Google Tag Manager (noscript) */}
-        <GoogleTagManagerNoScript gtmId={GTM_ID} />
+        <GTMBody gtmId={GTM_ID} />
         {children}
         
         {/* HubSpot Tracking Code */}
