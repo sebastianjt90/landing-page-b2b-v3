@@ -27,9 +27,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html>
+    <html lang="es">
       <head>
+        {/* Initialize dataLayer */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || [];`,
+          }}
+        />
+        {/* Google Tag Manager - Must load in head */}
         <GoogleTagManager gtmId={GTM_ID} />
+      </head>
+      <body>
+        {/* Google Tag Manager (noscript) */}
+        <GoogleTagManagerNoScript gtmId={GTM_ID} />
+        {children}
         
         {/* HubSpot Tracking Code */}
         <Script
@@ -37,10 +49,6 @@ export default function RootLayout({
           strategy="afterInteractive"
           src={`//js.hs-scripts.com/${HUBSPOT_PORTAL_ID}.js`}
         />
-      </head>
-      <body>
-        <GoogleTagManagerNoScript gtmId={GTM_ID} />
-        {children}
       </body>
     </html>
   );

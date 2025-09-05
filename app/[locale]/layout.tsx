@@ -30,7 +30,22 @@ export default async function LocaleLayout({
   return (
     <html lang={locale}>
       <head>
+        {/* Initialize dataLayer */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || [];`,
+          }}
+        />
+        {/* Google Tag Manager - Must load in head */}
         <GoogleTagManager gtmId={GTM_ID} />
+      </head>
+      <body
+        className="antialiased"
+        style={{ fontFamily: "'LaHaus Display', system-ui, sans-serif" }}
+      >
+        {/* Google Tag Manager (noscript) */}
+        <GoogleTagManagerNoScript gtmId={GTM_ID} />
+        {children}
         
         {/* HubSpot Tracking Code */}
         <Script
@@ -38,13 +53,6 @@ export default async function LocaleLayout({
           strategy="afterInteractive"
           src={`//js.hs-scripts.com/${HUBSPOT_PORTAL_ID}.js`}
         />
-      </head>
-      <body
-        className="antialiased"
-        style={{ fontFamily: "'LaHaus Display', system-ui, sans-serif" }}
-      >
-        <GoogleTagManagerNoScript gtmId={GTM_ID} />
-        {children}
       </body>
     </html>
   )

@@ -4,58 +4,124 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a B2B landing page built with Next.js 15.5.2, TypeScript, and Tailwind CSS v4. The project uses Tailark components (a shadcn/ui-based component library) for the UI.
+This is a multi-language B2B landing page built with Next.js 15.5.2, TypeScript, and Tailwind CSS v4. The application features internationalization (i18n) with Spanish and English support, and uses Tailark components (a shadcn/ui-based component library).
 
 ## Development Commands
 
 ```bash
-pnpm dev        # Start development server (usually on port 3000 or 3001)
+pnpm dev        # Start development server (port 3000, fallback to 3001)
 pnpm build      # Build for production
 pnpm start      # Start production server
 pnpm lint       # Run ESLint
 ```
 
-## Architecture & Key Components
+## Architecture & Structure
 
-### Component System
-The project uses Tailark components installed via shadcn CLI with a custom registry configuration:
-- **Tailark Registry**: Configured in `components.json` with URL pattern `https://tailark.com/r/{name}.json`
-- **Installation**: Use `pnpm dlx shadcn add @tailark/<component-name>` to add new Tailark components
-- **Component Location**: 
-  - UI primitives: `/components/ui/`
-  - Page sections: `/components/` (header.tsx, hero-section.tsx, logo.tsx)
-  - Custom sections: `/components/sections/`
+### Internationalization (i18n)
+- **Supported locales**: Spanish (`es`) and English (`en`)
+- **Default locale**: Spanish (`es`)
+- **Routing**: `/[locale]/` pattern with automatic redirection via `middleware.ts`
+- **Translations**: Centralized in `/lib/translations.ts`
+- **Language detection**: Based on Accept-Language header or URL path
 
-### Key Configuration Files
+### Component Architecture
+The project uses Tailark components with shadcn CLI:
+- **Registry**: `https://tailark.com/r/{name}.json` (configured in `components.json`)
+- **Installation**: `pnpm dlx shadcn add @tailark/<component-name>`
+- **Component hierarchy**:
+  - `/components/ui/` - Reusable UI primitives (buttons, cards, forms)
+  - `/components/` - Page sections and features (hero, footer, pricing)
+  - `/components/sections/` - Additional section components
+  - Internationalized variants: Components ending with `-intl.tsx` or `-es.tsx`/`-en.tsx`
 
-1. **components.json**: Contains shadcn/Tailark configuration including:
-   - Style: "new-york"
-   - Base color: "neutral"
-   - CSS variables enabled
-   - Tailark registry configuration
+### Key Dependencies
+- **Animation**: `motion` package for text effects and animations
+- **Icons**: `lucide-react` for icon components
+- **Styling**: Tailwind CSS v4 with CSS variables via `cn()` utility
+- **Forms**: Radix UI primitives for accessible components
 
-2. **next.config.ts**: Configured to allow external images from `ik.imagekit.io`
+### Application Routes
+```
+/[locale]/          - Main landing page
+/[locale]/login     - Login page
+/[locale]/signup    - Sign up page
+/[locale]/pricing   - Pricing page
+/[locale]/vsl       - Video sales letter page
+```
 
-### Component Dependencies
-- **Motion animations**: Uses `motion` package with components like `TextEffect` and `AnimatedGroup`
-- **Icons**: Lucide React for icons
-- **Styling**: Tailwind CSS v4 with CSS variables, using `cn()` utility from `/lib/utils`
+### External Integrations
+- **Images**: ImageKit CDN (`ik.imagekit.io`)
+- **Video**: PandaVideo player integration
+- **Analytics**: Google Tag Manager support
+- **Meetings**: HubSpot meeting scheduler
+- **Communication**: WhatsApp integration
 
-### Project Structure Notes
-- The `HeroSection` component includes the `Header` component internally - don't duplicate headers in pages
-- All Tailark component imports should use local paths (`@/components/...`) not `@tailark/core/...`
-- Images from external domains must be configured in `next.config.ts` under `images.remotePatterns`
+## Deployment Configuration
 
-## Deployment
-Project is configured for Vercel deployment with `vercel.json` specifying:
-- Framework: nextjs
-- Build command: pnpm build
-- Dev command: pnpm dev
-- Install command: pnpm install
+### Vercel Settings (`vercel.json`)
+- **Region**: `iad1` (US East)
+- **Max duration**: 30 seconds for locale pages
+- **Security headers**: CSP, XSS protection, referrer policy
+- **Cache**: Static assets cached for 1 year
+- **Auto-redirects**: Based on Accept-Language header
 
-## Common Issues & Solutions
+### Content Security Policy
+Configured to allow:
+- PandaVideo player embeds
+- HubSpot meeting scheduler
+- ImageKit CDN images
+- Google Fonts and analytics
 
-1. **Module not found errors for @tailark/core**: Replace with local imports (e.g., `@/components/logo`, `@/lib/utils`)
-2. **Next.js image domain errors**: Add hostname to `next.config.ts` under `images.remotePatterns`
-3. **Port conflicts**: Dev server will automatically use port 3001 if 3000 is occupied
-- siempre reinicia el servidor despues de aplicar cambios para verlos ejecutados
+## Component Patterns
+
+### Creating New Components
+1. Check existing patterns in similar components
+2. Use `cn()` utility for conditional styling
+3. Import from local paths (`@/components/...`)
+4. Follow TypeScript strict mode requirements
+
+### Adding Tailark Components
+```bash
+# Install new component
+pnpm dlx shadcn add @tailark/[component-name]
+
+# Component will be added to /components/ui/
+```
+
+### Internationalization Pattern
+```typescript
+// Use translations from lib/translations.ts
+import { translations } from '@/lib/translations'
+
+// Access translations
+const t = translations[locale]
+```
+
+## Common Development Tasks
+
+### Adding a New Page
+1. Create directory under `/app/[locale]/`
+2. Add `page.tsx` with proper locale handling
+3. Update navigation components if needed
+
+### Adding External Images
+1. Add hostname to `next.config.ts`:
+```typescript
+images: {
+  remotePatterns: [
+    { protocol: 'https', hostname: 'new-domain.com', pathname: '/**' }
+  ]
+}
+```
+
+### Modifying CSP for New Embeds
+Update `vercel.json` headers section with appropriate frame-src or child-src domains.
+
+## Important Notes
+
+- **Component imports**: Always use local paths, never `@tailark/core/...`
+- **Server restart**: Restart dev server after configuration changes
+- **Hero component**: Includes Header internally, don't duplicate
+- **Type safety**: Project uses TypeScript strict mode
+- **UTF-8 encoding**: Always use for CSV exports (per global instructions)
+- **Responsive testing**: Use Playwright for responsive design verification (per global instructions)
