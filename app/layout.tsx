@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
-import { GoogleTagManager, GoogleTagManagerNoScript } from "@/components/google-tag-manager";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -18,38 +16,10 @@ export const metadata: Metadata = {
   }
 };
 
-const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID || 'GTM-T7BT77WG';
-const HUBSPOT_PORTAL_ID = process.env.NEXT_PUBLIC_HUBSPOT_PORTAL_ID || '21568098';
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="es">
-      <head>
-        {/* Initialize dataLayer */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.dataLayer = window.dataLayer || [];`,
-          }}
-        />
-        {/* Google Tag Manager - Must load in head */}
-        <GoogleTagManager gtmId={GTM_ID} />
-      </head>
-      <body>
-        {/* Google Tag Manager (noscript) */}
-        <GoogleTagManagerNoScript gtmId={GTM_ID} />
-        {children}
-        
-        {/* HubSpot Tracking Code */}
-        <Script
-          id="hs-script-loader"
-          strategy="afterInteractive"
-          src={`//js.hs-scripts.com/${HUBSPOT_PORTAL_ID}.js`}
-        />
-      </body>
-    </html>
-  );
+  return children;
 }

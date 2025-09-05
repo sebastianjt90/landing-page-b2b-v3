@@ -30,19 +30,26 @@ export default async function LocaleLayout({
   return (
     <html lang={locale}>
       <head>
-        {/* Initialize dataLayer */}
-        <script
+        <Script
+          id="gtm-base"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
-            __html: `window.dataLayer = window.dataLayer || [];`,
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              window.dataLayer.push({
+                'gtm.start': new Date().getTime(),
+                'event': 'gtm.js'
+              });
+            `,
           }}
         />
-        {/* Google Tag Manager - Must load in head */}
-        <GoogleTagManager gtmId={GTM_ID} />
       </head>
       <body
         className="antialiased"
         style={{ fontFamily: "'LaHaus Display', system-ui, sans-serif" }}
       >
+        {/* Google Tag Manager */}
+        <GoogleTagManager gtmId={GTM_ID} />
         {/* Google Tag Manager (noscript) */}
         <GoogleTagManagerNoScript gtmId={GTM_ID} />
         {children}
