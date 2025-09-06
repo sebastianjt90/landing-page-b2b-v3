@@ -3,15 +3,7 @@ import Image from 'next/image'
 
 export default function LogoCloud() {
     const logos = [
-        { src: '/logos/metroc.svg', alt: 'Constructora Metroc' },
-        { src: '/logos/amarilo.svg', alt: 'Amarilo' },
-        { src: '/logos/vivienda.svg', alt: 'Constructora Vivienda' },
-        { src: '/logos/oikos.svg', alt: 'Oikos' },
-        { src: '/logos/prodesa.svg', alt: 'Prodesa' },
-        { src: '/logos/apiros.png', alt: 'Apiros' },
-        { src: '/logos/bolivar.svg', alt: 'Constructora Bolivar' },
-        { src: '/logos/colpatria.svg', alt: 'Constructora Colpatria' },
-        // Nuevos logos VSL
+        // Logos VSL disponibles
         { src: '/logos/vsl/sadasi_logo.png', alt: 'Sadasi' },
         { src: '/logos/vsl/logo-m2.png', alt: 'M2' },
         { src: '/logos/vsl/ingeurbe_logo.png', alt: 'Ingeurbe' },
