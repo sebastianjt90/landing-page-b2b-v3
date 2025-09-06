@@ -7,10 +7,16 @@ export default function LogoCloud() {
             <div className="group relative m-auto max-w-7xl px-6">
                 <div className="flex flex-col items-center gap-8 md:flex-row md:gap-12">
                     <div className="text-center md:max-w-xs md:border-r md:border-muted-foreground/20 md:pr-8 md:text-right">
-                        <p className="text-lg font-semibold text-foreground md:text-xl lg:text-2xl">
+                        <p style={{ 
+                            fontFamily: "'LaHaus Display', system-ui, sans-serif",
+                            fontSize: '1rem',
+                            fontWeight: 500,
+                            color: '#00251D',
+                            lineHeight: '1.4'
+                        }}>
                             Empresas líderes
                             <br />
-                            <span className="text-primary">confían en nosotros</span>
+                            confían en nosotros
                         </p>
                     </div>
                     <div className="relative w-full py-8 md:w-[calc(100%-16rem)]">

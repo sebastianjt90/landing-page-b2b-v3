@@ -14,22 +14,22 @@ export default function ContentSection({ onBookDemo }: { onBookDemo?: () => void
                     textAlign: 'center',
                     marginBottom: '48px'
                 }}>
-                    <h2 style={{ 
+                    <h1 style={{ 
                         fontFamily: "'LaHaus Display', system-ui, sans-serif", 
-                        fontWeight: 600, 
+                        fontWeight: 700, 
                         color: '#00251D',
-                        fontSize: '2.25rem',
-                        lineHeight: '1.2',
-                        marginBottom: '16px'
+                        fontSize: 'clamp(2.5rem, 5vw, 3.5rem)',
+                        lineHeight: '1.1',
+                        marginBottom: '24px'
                     }}>
                         Aumentaremos tus ventas un <span style={{ color: '#E19BFF' }}>35%</span> en los próximos 3 meses
-                    </h2>
+                    </h1>
                     <p style={{ 
                         color: '#00251D', 
                         fontFamily: "'Wix Madefor Text', system-ui, sans-serif",
-                        fontSize: '1.125rem',
-                        lineHeight: '1.5',
-                        maxWidth: '600px',
+                        fontSize: 'clamp(1.125rem, 2vw, 1.375rem)',
+                        lineHeight: '1.6',
+                        maxWidth: '650px',
                         margin: '0 auto'
                     }}>
                         Conoce el asistente IA para desarrolladores e inmobiliarias que está transformando el mercado inmobiliario
@@ -72,11 +72,23 @@ export default function ContentSection({ onBookDemo }: { onBookDemo?: () => void
                             fontFamily: "'Wix Madefor Text', system-ui, sans-serif",
                             backgroundColor: '#00251D',
                             color: 'white',
-                            padding: '12px 20px',
-                            fontSize: '16px',
-                            borderRadius: '12px',
+                            padding: '20px 40px',
+                            fontSize: '20px',
+                            fontWeight: '600',
+                            borderRadius: '16px',
                             border: 'none',
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 14px 0 rgba(0, 37, 29, 0.25)',
+                            transition: 'all 0.3s ease',
+                            transform: 'scale(1)'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'scale(1.05)';
+                            e.currentTarget.style.boxShadow = '0 6px 20px 0 rgba(0, 37, 29, 0.35)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'scale(1)';
+                            e.currentTarget.style.boxShadow = '0 4px 14px 0 rgba(0, 37, 29, 0.25)';
                         }}
                         onClick={onBookDemo}>
                         <span style={{ whiteSpace: 'nowrap' }}>Agenda tu demo ahora</span>
