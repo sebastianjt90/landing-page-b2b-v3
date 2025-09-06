@@ -9,7 +9,7 @@ export default function ContentSection({ onBookDemo }: { onBookDemo?: () => void
                 padding: '0 24px'
             }}>
                 <div style={{ 
-                    maxWidth: '700px', 
+                    maxWidth: '850px', 
                     margin: '0 auto',
                     textAlign: 'center',
                     marginBottom: '48px'
@@ -27,9 +27,9 @@ export default function ContentSection({ onBookDemo }: { onBookDemo?: () => void
                     <p style={{ 
                         color: '#00251D', 
                         fontFamily: "'Wix Madefor Text', system-ui, sans-serif",
-                        fontSize: 'clamp(1.125rem, 2vw, 1.375rem)',
+                        fontSize: 'clamp(1rem, 1.5vw, 1.125rem)',
                         lineHeight: '1.6',
-                        maxWidth: '650px',
+                        maxWidth: '600px',
                         margin: '0 auto'
                     }}>
                         Conoce el asistente IA para desarrolladores e inmobiliarias que está transformando el mercado inmobiliario
@@ -69,10 +69,10 @@ export default function ContentSection({ onBookDemo }: { onBookDemo?: () => void
                     <Button
                         size="lg"
                         style={{ 
-                            fontFamily: "'Wix Madefor Text', system-ui, sans-serif",
+                            fontFamily: "'LaHaus Display', system-ui, sans-serif",
                             backgroundColor: '#00251D',
                             color: 'white',
-                            padding: '20px 40px',
+                            padding: '28px 48px',
                             fontSize: '20px',
                             fontWeight: '600',
                             borderRadius: '16px',
@@ -80,7 +80,8 @@ export default function ContentSection({ onBookDemo }: { onBookDemo?: () => void
                             cursor: 'pointer',
                             boxShadow: '0 4px 14px 0 rgba(0, 37, 29, 0.25)',
                             transition: 'all 0.3s ease',
-                            transform: 'scale(1)'
+                            transform: 'scale(1)',
+                            letterSpacing: '0.02em'
                         }}
                         onMouseEnter={(e) => {
                             e.currentTarget.style.transform = 'scale(1.05)';
