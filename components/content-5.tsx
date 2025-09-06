@@ -1,6 +1,20 @@
+'use client'
+
 import { Button } from '@/components/ui/button'
+import { useEffect, useState } from 'react'
 
 export default function ContentSection({ onBookDemo }: { onBookDemo?: () => void }) {
+    const [isMobile, setIsMobile] = useState(false)
+    
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768)
+        }
+        checkMobile()
+        window.addEventListener('resize', checkMobile)
+        return () => window.removeEventListener('resize', checkMobile)
+    }, [])
+    
     return (
         <section style={{ paddingTop: '80px', paddingBottom: '32px' }}>
             <div style={{ 
@@ -72,10 +86,10 @@ export default function ContentSection({ onBookDemo }: { onBookDemo?: () => void
                             fontFamily: "'LaHaus Display', system-ui, sans-serif",
                             backgroundColor: '#00251D',
                             color: 'white',
-                            padding: '28px 48px',
-                            fontSize: '20px',
+                            padding: isMobile ? '16px 32px' : '28px 48px',
+                            fontSize: isMobile ? '16px' : '20px',
                             fontWeight: '600',
-                            borderRadius: '16px',
+                            borderRadius: isMobile ? '12px' : '16px',
                             border: 'none',
                             cursor: 'pointer',
                             boxShadow: '0 4px 14px 0 rgba(0, 37, 29, 0.25)',
@@ -84,12 +98,16 @@ export default function ContentSection({ onBookDemo }: { onBookDemo?: () => void
                             letterSpacing: '0.02em'
                         }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.transform = 'scale(1.05)';
-                            e.currentTarget.style.boxShadow = '0 6px 20px 0 rgba(0, 37, 29, 0.35)';
+                            if (!isMobile) {
+                                e.currentTarget.style.transform = 'scale(1.05)';
+                                e.currentTarget.style.boxShadow = '0 6px 20px 0 rgba(0, 37, 29, 0.35)';
+                            }
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.transform = 'scale(1)';
-                            e.currentTarget.style.boxShadow = '0 4px 14px 0 rgba(0, 37, 29, 0.25)';
+                            if (!isMobile) {
+                                e.currentTarget.style.transform = 'scale(1)';
+                                e.currentTarget.style.boxShadow = '0 4px 14px 0 rgba(0, 37, 29, 0.25)';
+                            }
                         }}
                         onClick={onBookDemo}>
                         <span style={{ whiteSpace: 'nowrap' }}>Agenda tu demo ahora</span>
