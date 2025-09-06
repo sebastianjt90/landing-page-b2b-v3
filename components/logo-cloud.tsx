@@ -26,74 +26,58 @@ export default function LogoCloud() {
                             gap={120}>
                             <div className="flex items-center">
                                 <img
-                                    className="mx-auto h-12 w-fit md:h-14 lg:h-16 opacity-80 hover:opacity-100 transition-opacity"
+                                    className="mx-auto h-12 w-auto max-w-[150px] md:h-14 md:max-w-[180px] lg:h-16 lg:max-w-[200px] opacity-80 hover:opacity-100 transition-opacity object-contain"
                                     src="/logos/vsl/sadasi_logo.png"
                                     alt="Sadasi Logo"
-                                    height="64"
-                                    width="auto"
                                 />
                             </div>
                             <div className="flex items-center">
                                 <img
-                                    className="mx-auto h-12 w-fit md:h-14 lg:h-16 opacity-80 hover:opacity-100 transition-opacity"
+                                    className="mx-auto h-12 w-auto max-w-[150px] md:h-14 md:max-w-[180px] lg:h-16 lg:max-w-[200px] opacity-80 hover:opacity-100 transition-opacity object-contain"
                                     src="/logos/vsl/logo-m2.png"
                                     alt="M2 Logo"
-                                    height="64"
-                                    width="auto"
                                 />
                             </div>
                             <div className="flex items-center">
                                 <img
-                                    className="mx-auto h-12 w-fit md:h-14 lg:h-16 opacity-80 hover:opacity-100 transition-opacity"
+                                    className="mx-auto h-12 w-auto max-w-[150px] md:h-14 md:max-w-[180px] lg:h-16 lg:max-w-[200px] opacity-80 hover:opacity-100 transition-opacity object-contain"
                                     src="/logos/vsl/ingeurbe_logo.png"
                                     alt="Ingeurbe Logo"
-                                    height="64"
-                                    width="auto"
                                 />
                             </div>
                             <div className="flex items-center">
                                 <img
-                                    className="mx-auto h-12 w-fit md:h-14 lg:h-16 opacity-80 hover:opacity-100 transition-opacity"
+                                    className="mx-auto h-12 w-auto max-w-[150px] md:h-14 md:max-w-[180px] lg:h-16 lg:max-w-[200px] opacity-80 hover:opacity-100 transition-opacity object-contain"
                                     src="/logos/vsl/capital_logo.png"
                                     alt="Capital Logo"
-                                    height="64"
-                                    width="auto"
                                 />
                             </div>
                             <div className="flex items-center">
                                 <img
-                                    className="mx-auto h-12 w-fit md:h-14 lg:h-16 opacity-80 hover:opacity-100 transition-opacity"
+                                    className="mx-auto h-12 w-auto max-w-[150px] md:h-14 md:max-w-[180px] lg:h-16 lg:max-w-[200px] opacity-80 hover:opacity-100 transition-opacity object-contain"
                                     src="/logos/vsl/arqyconcreto_logo.png"
                                     alt="Arq y Concreto Logo"
-                                    height="64"
-                                    width="auto"
                                 />
                             </div>
                             <div className="flex items-center">
                                 <img
-                                    className="mx-auto h-12 w-fit md:h-14 lg:h-16 opacity-80 hover:opacity-100 transition-opacity"
+                                    className="mx-auto h-12 w-auto max-w-[150px] md:h-14 md:max-w-[180px] lg:h-16 lg:max-w-[200px] opacity-80 hover:opacity-100 transition-opacity object-contain"
                                     src="/logos/vsl/vertice_logo.png"
                                     alt="Vértice Logo"
-                                    height="64"
-                                    width="auto"
                                 />
                             </div>
                             <div className="flex items-center">
                                 <img
-                                    className="mx-auto h-12 w-fit md:h-14 lg:h-16 opacity-80 hover:opacity-100 transition-opacity"
+                                    className="mx-auto h-12 w-auto max-w-[150px] md:h-14 md:max-w-[180px] lg:h-16 lg:max-w-[200px] opacity-80 hover:opacity-100 transition-opacity object-contain"
                                     src="/logos/vsl/sisol_logo.png"
                                     alt="Sisol Logo"
-                                    height="64"
-                                    width="auto"
                                 />
                             </div>
                             <div className="flex items-center">
                                 <img
-                                    className="mx-auto h-12 w-fit md:h-14 lg:h-16 opacity-80 hover:opacity-100 transition-opacity"
+                                    className="mx-auto h-12 w-auto max-w-[150px] md:h-14 md:max-w-[180px] lg:h-16 lg:max-w-[200px] opacity-80 hover:opacity-100 transition-opacity object-contain"
                                     src="/logos/vsl/sancarlos_logo.png"
                                     alt="San Carlos Logo"
-                                    height="64"
-                                    width="auto"
                                 />
                             </div>
                         </InfiniteSlider>
