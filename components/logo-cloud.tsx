@@ -3,100 +3,104 @@ import { ProgressiveBlur } from '@/components/ui/progressive-blur'
 
 export default function LogoCloud() {
     return (
-        <section className="bg-background overflow-hidden py-16">
+        <section className="bg-background overflow-hidden py-20 md:py-24">
             <div className="group relative m-auto max-w-7xl px-6">
-                <div className="flex flex-col items-center md:flex-row">
-                    <div className="md:max-w-44 md:border-r md:pr-6">
-                        <p className="text-end text-sm">Empresas líderes confían en nosotros</p>
+                <div className="flex flex-col items-center gap-8 md:flex-row md:gap-12">
+                    <div className="text-center md:max-w-xs md:border-r md:border-muted-foreground/20 md:pr-8 md:text-right">
+                        <p className="text-lg font-semibold text-foreground md:text-xl lg:text-2xl">
+                            Empresas líderes
+                            <br />
+                            <span className="text-primary">confían en nosotros</span>
+                        </p>
                     </div>
-                    <div className="relative py-6 md:w-[calc(100%-11rem)]">
+                    <div className="relative w-full py-8 md:w-[calc(100%-16rem)]">
                         <InfiniteSlider
                             speedOnHover={20}
                             speed={40}
-                            gap={112}>
-                            <div className="flex">
+                            gap={120}>
+                            <div className="flex items-center">
                                 <img
-                                    className="mx-auto h-8 w-fit"
+                                    className="mx-auto h-12 w-fit md:h-14 lg:h-16 opacity-80 hover:opacity-100 transition-opacity"
                                     src="/logos/vsl/sadasi_logo.png"
                                     alt="Sadasi Logo"
-                                    height="32"
+                                    height="64"
                                     width="auto"
                                 />
                             </div>
-                            <div className="flex">
+                            <div className="flex items-center">
                                 <img
-                                    className="mx-auto h-8 w-fit"
+                                    className="mx-auto h-12 w-fit md:h-14 lg:h-16 opacity-80 hover:opacity-100 transition-opacity"
                                     src="/logos/vsl/logo-m2.png"
                                     alt="M2 Logo"
-                                    height="32"
+                                    height="64"
                                     width="auto"
                                 />
                             </div>
-                            <div className="flex">
+                            <div className="flex items-center">
                                 <img
-                                    className="mx-auto h-8 w-fit"
+                                    className="mx-auto h-12 w-fit md:h-14 lg:h-16 opacity-80 hover:opacity-100 transition-opacity"
                                     src="/logos/vsl/ingeurbe_logo.png"
                                     alt="Ingeurbe Logo"
-                                    height="32"
+                                    height="64"
                                     width="auto"
                                 />
                             </div>
-                            <div className="flex">
+                            <div className="flex items-center">
                                 <img
-                                    className="mx-auto h-8 w-fit"
+                                    className="mx-auto h-12 w-fit md:h-14 lg:h-16 opacity-80 hover:opacity-100 transition-opacity"
                                     src="/logos/vsl/capital_logo.png"
                                     alt="Capital Logo"
-                                    height="32"
+                                    height="64"
                                     width="auto"
                                 />
                             </div>
-                            <div className="flex">
+                            <div className="flex items-center">
                                 <img
-                                    className="mx-auto h-8 w-fit"
+                                    className="mx-auto h-12 w-fit md:h-14 lg:h-16 opacity-80 hover:opacity-100 transition-opacity"
                                     src="/logos/vsl/arqyconcreto_logo.png"
                                     alt="Arq y Concreto Logo"
-                                    height="32"
+                                    height="64"
                                     width="auto"
                                 />
                             </div>
-                            <div className="flex">
+                            <div className="flex items-center">
                                 <img
-                                    className="mx-auto h-8 w-fit"
+                                    className="mx-auto h-12 w-fit md:h-14 lg:h-16 opacity-80 hover:opacity-100 transition-opacity"
                                     src="/logos/vsl/vertice_logo.png"
                                     alt="Vértice Logo"
-                                    height="32"
+                                    height="64"
                                     width="auto"
                                 />
                             </div>
-                            <div className="flex">
+                            <div className="flex items-center">
                                 <img
-                                    className="mx-auto h-8 w-fit"
+                                    className="mx-auto h-12 w-fit md:h-14 lg:h-16 opacity-80 hover:opacity-100 transition-opacity"
                                     src="/logos/vsl/sisol_logo.png"
                                     alt="Sisol Logo"
-                                    height="32"
+                                    height="64"
                                     width="auto"
                                 />
                             </div>
-                            <div className="flex">
+                            <div className="flex items-center">
                                 <img
-                                    className="mx-auto h-8 w-fit"
+                                    className="mx-auto h-12 w-fit md:h-14 lg:h-16 opacity-80 hover:opacity-100 transition-opacity"
                                     src="/logos/vsl/sancarlos_logo.png"
                                     alt="San Carlos Logo"
-                                    height="32"
+                                    height="64"
                                     width="auto"
                                 />
                             </div>
                         </InfiniteSlider>
 
                         <ProgressiveBlur
-                            className="pointer-events-none absolute left-0 top-0 h-full w-20"
+                            className="pointer-events-none absolute left-0 top-0 h-full w-24"
                             direction="left"
-                            blurIntensity={1}
+                            blurIntensity={0.8}
                         />
                         <ProgressiveBlur
-                            className="pointer-events-none absolute right-0 top-0 h-full w-20"
+                            className="pointer-events-none absolute right-0 top-0 h-full w-24"
                             direction="right"
-                            blurIntensity={1}
+                            blurIntensity={0.8}
                         />
                     </div>
                 </div>
