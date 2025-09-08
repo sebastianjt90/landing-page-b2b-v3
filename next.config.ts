@@ -2,12 +2,12 @@ import type { NextConfig } from "next";
 
 const csp = [
   "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:",
-  // Scripts - including Meta/Facebook, Google, HubSpot, LinkedIn
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://tagassistant.google.com https://www.google-analytics.com https://googleads.g.doubleclick.net https://www.googleadservices.com https://js.hs-scripts.com https://js.hsforms.net https://js.hscollectedforms.net https://js.usemessages.com https://js.hsleadflows.net https://js.hs-banner.com https://js.hs-analytics.net https://js.hsadspixel.net https://js.hubspot.com https://snap.licdn.com https://connect.facebook.net",
-  // Connections - including Meta/Facebook APIs
-  "connect-src 'self' https: wss: ws: https://www.facebook.com https://connect.facebook.net https://graph.facebook.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com",
-  // Images - including Meta/Facebook pixels
-  "img-src 'self' data: https: blob: https://www.facebook.com https://connect.facebook.net https://www.google-analytics.com https://www.googletagmanager.com",
+  // Scripts - including Meta/Facebook, Google, HubSpot, LinkedIn, PostHog
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://tagassistant.google.com https://www.google-analytics.com https://googleads.g.doubleclick.net https://www.googleadservices.com https://js.hs-scripts.com https://js.hsforms.net https://js.hscollectedforms.net https://js.usemessages.com https://js.hsleadflows.net https://js.hs-banner.com https://js.hs-analytics.net https://js.hsadspixel.net https://js.hubspot.com https://snap.licdn.com https://connect.facebook.net https://us-assets.i.posthog.com https://app.posthog.com https://cdn.posthog.com",
+  // Connections - including Meta/Facebook APIs, PostHog
+  "connect-src 'self' https: wss: ws: https://www.facebook.com https://connect.facebook.net https://graph.facebook.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://us.i.posthog.com https://app.posthog.com",
+  // Images - including Meta/Facebook pixels, PostHog
+  "img-src 'self' data: https: blob: https://www.facebook.com https://connect.facebook.net https://www.google-analytics.com https://www.googletagmanager.com https://us-assets.i.posthog.com https://app.posthog.com",
   // Frames - including Meta/Facebook widgets and PandaVideo
   "frame-src 'self' https://www.facebook.com https://www.googletagmanager.com https://tagassistant.google.com https://player-vz-711edda5-617.tv.pandavideo.com https://player.pandavideo.com.br https://meetings.hubspot.com https://meetings-eu1.hubspot.com https://*.hsforms.com https://*.hubspot.com",
   // Child sources
