@@ -42,7 +42,20 @@ export function HeroSection({ locale = 'es' }: { locale?: string }) {
 
     return (
         <>
-            <Header onBookDemo={() => setIsBookingModalOpen(true)} locale={validLocale} />
+            <Header onBookDemo={() => {
+                // Push event to GTM dataLayer
+                if (typeof window !== 'undefined' && window.dataLayer) {
+                    window.dataLayer.push({
+                        event: 'book_demo_click',
+                        event_category: 'engagement',
+                        event_label: 'header',
+                        page_location: 'main_page',
+                        button_text: 'Agenda demo',
+                        locale: validLocale
+                    });
+                }
+                setIsBookingModalOpen(true);
+            }} locale={validLocale} />
             <WhatsAppButton locale={validLocale} />
             <main className="overflow-hidden">
                 <div
@@ -136,7 +149,20 @@ export function HeroSection({ locale = 'es' }: { locale?: string }) {
                                             size="lg"
                                             className="rounded-xl px-5 text-base bg-[#00251D] hover:bg-[#00251D]/90 text-white shadow-none border-0"
                                             style={{ fontFamily: "'Wix Madefor Text', system-ui, sans-serif" }}
-                                            onClick={() => setIsBookingModalOpen(true)}>
+                                            onClick={() => {
+                                                // Push event to GTM dataLayer
+                                                if (typeof window !== 'undefined' && window.dataLayer) {
+                                                    window.dataLayer.push({
+                                                        event: 'book_demo_click',
+                                                        event_category: 'engagement',
+                                                        event_label: 'hero_section',
+                                                        page_location: 'main_page',
+                                                        button_text: t.hero.cta,
+                                                        locale: validLocale
+                                                    });
+                                                }
+                                                setIsBookingModalOpen(true);
+                                            }}>
                                             <span className="text-nowrap">{t.hero.cta}</span>
                                         </Button>
                                     </div>
@@ -177,7 +203,20 @@ export function HeroSection({ locale = 'es' }: { locale?: string }) {
                 <StatsSection locale={validLocale} />
                 <FeaturesSection locale={validLocale} />
                 <IntegrationsSection locale={validLocale} />
-                <CallToAction onBookDemo={() => setIsBookingModalOpen(true)} locale={validLocale} />
+                <CallToAction onBookDemo={() => {
+                    // Push event to GTM dataLayer
+                    if (typeof window !== 'undefined' && window.dataLayer) {
+                        window.dataLayer.push({
+                            event: 'book_demo_click',
+                            event_category: 'engagement',
+                            event_label: 'cta_section',
+                            page_location: 'main_page',
+                            button_text: 'Agenda tu demo ahora',
+                            locale: validLocale
+                        });
+                    }
+                    setIsBookingModalOpen(true);
+                }} locale={validLocale} />
                 <FAQsTwo locale={validLocale} />
                 <FooterSection locale={validLocale} />
             </main>

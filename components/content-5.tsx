@@ -109,7 +109,20 @@ export default function ContentSection({ onBookDemo }: { onBookDemo?: () => void
                                 e.currentTarget.style.boxShadow = '0 4px 14px 0 rgba(0, 37, 29, 0.25)';
                             }
                         }}
-                        onClick={onBookDemo}>
+                        onClick={() => {
+                            // Push event to GTM dataLayer
+                            if (typeof window !== 'undefined' && window.dataLayer) {
+                                window.dataLayer.push({
+                                    event: 'book_demo_click',
+                                    event_category: 'engagement',
+                                    event_label: 'vsl_section',
+                                    page_location: 'vsl_page',
+                                    button_text: 'Agenda tu demo ahora',
+                                    locale: 'es'
+                                });
+                            }
+                            if (onBookDemo) onBookDemo();
+                        }}>
                         <span style={{ whiteSpace: 'nowrap' }}>Agenda tu demo ahora</span>
                     </Button>
                 </div>
