@@ -44,7 +44,8 @@ export default function ContentSection({ onBookDemo }: { onBookDemo?: () => void
                         fontSize: 'clamp(1rem, 1.5vw, 1.125rem)',
                         lineHeight: '1.6',
                         maxWidth: '600px',
-                        margin: '0 auto'
+                        margin: '0 auto',
+                        display: isMobile ? 'none' : 'block'
                     }}>
                         Conoce el asistente IA para desarrolladores e inmobiliarias que está transformando el mercado inmobiliario
                     </p>
