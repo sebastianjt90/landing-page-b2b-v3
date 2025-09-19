@@ -13,7 +13,13 @@ pnpm dev        # Start development server (port 3000, fallback to 3001)
 pnpm build      # Build for production
 pnpm start      # Start production server
 pnpm lint       # Run ESLint
+pnpm install    # Install dependencies (use pnpm, not npm or yarn)
 ```
+
+### Development Workflow Notes
+- **Package Manager**: Always use `pnpm` - this is specified in the project configuration
+- **No TypeScript Check Script**: The project doesn't have a separate `typecheck` command configured
+- **ESLint Configuration**: Uses Next.js TypeScript preset with flat config format (eslint.config.mjs)
 
 ## Architecture & Structure
 
@@ -23,22 +29,31 @@ pnpm lint       # Run ESLint
 - **Routing**: `/[locale]/` pattern with automatic redirection via `middleware.ts`
 - **Translations**: Centralized in `/lib/translations.ts`
 - **Language detection**: Based on Accept-Language header or URL path
+- **Middleware matcher**: Excludes API routes, static files, assets, and public resources
 
 ### Component Architecture
 The project uses Tailark components with shadcn CLI:
 - **Registry**: `https://tailark.com/r/{name}.json` (configured in `components.json`)
 - **Installation**: `pnpm dlx shadcn add @tailark/<component-name>`
 - **Component hierarchy**:
-  - `/components/ui/` - Reusable UI primitives (buttons, cards, forms)
-  - `/components/` - Page sections and features (hero, footer, pricing)
+  - `/components/ui/` - Reusable UI primitives (buttons, cards, forms) from Tailark/shadcn
+  - `/components/` - Page sections and features (hero, footer, pricing, stats, integrations)
   - `/components/sections/` - Additional section components
-  - Internationalized variants: Components ending with `-intl.tsx` or `-es.tsx`/`-en.tsx`
+  - Internationalized variants: Components ending with `-intl.tsx` or locale-specific `-es.tsx`/`-en.tsx`
+
+### shadcn/ui Configuration
+- **Style**: New York variant
+- **Base Color**: Neutral
+- **CSS Variables**: Enabled (in `app/globals.css`)
+- **RSC (React Server Components)**: Enabled
+- **Icon Library**: Lucide React
 
 ### Key Dependencies
-- **Animation**: `motion` package for text effects and animations
+- **Animation**: `motion` v12.23.12 for text effects and animations
 - **Icons**: `lucide-react` for icon components
-- **Styling**: Tailwind CSS v4 with CSS variables via `cn()` utility
-- **Forms**: Radix UI primitives for accessible components
+- **Styling**: Tailwind CSS v4 with CSS variables via `cn()` utility from `/lib/utils`
+- **UI Primitives**: Radix UI components (@radix-ui/react-*)
+- **Utilities**: `clsx` and `tailwind-merge` for className management
 
 ### Application Routes
 ```
@@ -51,26 +66,38 @@ The project uses Tailark components with shadcn CLI:
 
 ### External Integrations
 - **Images**: ImageKit CDN (`ik.imagekit.io`)
-- **Video**: PandaVideo player integration
-- **Analytics**: Google Tag Manager support
-- **Meetings**: HubSpot meeting scheduler
+- **Video**: PandaVideo player (`player-vz-711edda5-617.tv.pandavideo.com`)
+- **Analytics**: Google Tag Manager, Google Analytics, Meta Pixel, PostHog
+- **Marketing**: HubSpot (forms, meetings, scripts), LinkedIn Snap
 - **Communication**: WhatsApp integration
 
 ## Deployment Configuration
 
-### Vercel Settings (`vercel.json`)
+### Vercel Settings
+The project uses dual configuration (both `vercel.json` and `next.config.ts`):
 - **Region**: `iad1` (US East)
 - **Max duration**: 30 seconds for locale pages
-- **Security headers**: CSP, XSS protection, referrer policy
-- **Cache**: Static assets cached for 1 year
-- **Auto-redirects**: Based on Accept-Language header
+- **Build command**: `pnpm build`
+- **Framework**: Next.js auto-detected
 
-### Content Security Policy
-Configured to allow:
+### Security Headers
+Content Security Policy configured to allow:
+- Google services (GTM, Analytics, Ads)
+- HubSpot services (forms, meetings, analytics)
+- Meta/Facebook services (pixel, connect)
+- PostHog analytics
 - PandaVideo player embeds
-- HubSpot meeting scheduler
 - ImageKit CDN images
-- Google Fonts and analytics
+
+Headers are duplicated in both `next.config.ts` and `vercel.json` for redundancy.
+
+## TypeScript Configuration
+
+- **Target**: ES2017
+- **Strict mode**: Enabled
+- **Module resolution**: Bundler
+- **Path alias**: `@/*` maps to project root
+- **JSX**: Preserve mode for Next.js
 
 ## Component Patterns
 
@@ -82,10 +109,11 @@ Configured to allow:
 
 ### Adding Tailark Components
 ```bash
-# Install new component
-pnpm dlx shadcn add @tailark/[component-name]
+# Install new component from Tailark registry
+pnpm dlx shadcn add @tailark/<component-name>
 
-# Component will be added to /components/ui/
+# Components will be added to /components/ui/
+# Note: Registry URL is configured as https://tailark.com/r/{name}.json
 ```
 
 ### Internationalization Pattern
@@ -105,7 +133,7 @@ const t = translations[locale]
 3. Update navigation components if needed
 
 ### Adding External Images
-1. Add hostname to `next.config.ts`:
+Add hostname to `next.config.ts`:
 ```typescript
 images: {
   remotePatterns: [
@@ -115,13 +143,34 @@ images: {
 ```
 
 ### Modifying CSP for New Embeds
-Update `vercel.json` headers section with appropriate frame-src or child-src domains.
+Update both `vercel.json` and `next.config.ts` CSP headers with appropriate frame-src or child-src domains.
+
+## Project-Specific Patterns
+
+### File Naming Conventions
+- Page components: `page.tsx`
+- Layout components: `layout.tsx`
+- UI components: kebab-case (e.g., `infinite-slider.tsx`)
+- Internationalized components: suffix with locale or `-intl`
+
+### State Management
+- No global state management library currently
+- Component-level state with React hooks
+- Server components preferred where possible
+
+### Styling Approach
+- Tailwind CSS v4 with CSS variables
+- No CSS modules or styled-components
+- Utility-first approach with `cn()` helper
+- Animation utilities from `tw-animate-css`
 
 ## Important Notes
 
 - **Component imports**: Always use local paths, never `@tailark/core/...`
-- **Server restart**: Restart dev server after configuration changes
+- **Server restart**: Required after modifying `next.config.ts`, `middleware.ts`, or `vercel.json`
 - **Hero component**: Includes Header internally, don't duplicate
-- **Type safety**: Project uses TypeScript strict mode
-- **UTF-8 encoding**: Always use for CSV exports (per global instructions)
-- **Responsive testing**: Use Playwright for responsive design verification (per global instructions)
+- **Type safety**: Project uses TypeScript strict mode - no implicit any
+- **Package manager**: Always use `pnpm`, not npm or yarn
+- **Linting**: Uses flat config format (eslint.config.mjs) with Next.js TypeScript preset
+- **Path aliases**: `@/*` maps to project root (configured in tsconfig.json)
+- **ESModules**: Configuration files use ESM format (.mjs, .ts with ES modules)
