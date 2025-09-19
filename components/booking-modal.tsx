@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { translations } from '@/lib/translations'
+import { buildMeetingUrlWithCurrentParams, captureTrackingParams, formatTrackingParamsForLog } from '@/lib/utm-utils'
 
 interface BookingModalProps {
     isOpen: boolean
@@ -12,13 +13,26 @@ interface BookingModalProps {
 
 export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalProps) {
     const [isLoading, setIsLoading] = useState(true)
+    const [meetingUrl, setMeetingUrl] = useState<string>('')
     const t = translations[locale as keyof typeof translations] || translations.es
 
     useEffect(() => {
-        // Prevent scroll when modal is open
+        // Prevent scroll when modal is open and build meeting URL with UTMs
         if (isOpen) {
             document.body.style.overflow = 'hidden'
             setIsLoading(true)
+
+            // Build meeting URL with current UTM parameters
+            const baseUrl = t.booking.meetingUrl
+            const urlWithUtms = buildMeetingUrlWithCurrentParams(baseUrl)
+            setMeetingUrl(urlWithUtms)
+
+            // Log tracking parameters for debugging (only in development)
+            if (process.env.NODE_ENV === 'development') {
+                const trackingParams = captureTrackingParams()
+                console.log('📊 Booking Modal - UTM Parameters:', formatTrackingParamsForLog(trackingParams))
+                console.log('🔗 Meeting URL with UTMs:', urlWithUtms)
+            }
         } else {
             document.body.style.overflow = 'unset'
         }
@@ -26,7 +40,7 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
         return () => {
             document.body.style.overflow = 'unset'
         }
-    }, [isOpen])
+    }, [isOpen, t.booking.meetingUrl])
 
     const handleIframeLoad = () => {
         // Dar un poco más de tiempo para que el contenido del iframe se renderice
@@ -75,12 +89,12 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                     overflow: 'hidden'
                 }}>
                     <iframe
-                        key={locale} // Forzar recreación del iframe cuando cambia el idioma
-                        src={t.booking.meetingUrl}
+                        key={`${locale}-${meetingUrl}`} // Forzar recreación del iframe cuando cambia el idioma o URL
+                        src={meetingUrl || t.booking.meetingUrl}
                         width="100%"
                         height="100%"
                         frameBorder="0"
-                        style={{ 
+                        style={{
                             border: 'none',
                             borderRadius: '0',
                             transform: 'scale(1.02)',
