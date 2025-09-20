@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { useAttribution } from '@/hooks/use-attribution'
+import { usePreAttribution } from '@/hooks/use-pre-attribution'
 
 interface VSLBookingModalProps {
   isOpen: boolean
@@ -14,27 +15,59 @@ export function VSLBookingModal({ isOpen, onClose }: VSLBookingModalProps) {
   const [meetingUrl, setMeetingUrl] = useState<string>('')
   const [iframeId] = useState(() => `vsl-hubspot-meetings-iframe-${Date.now()}`)
   const { utmParams, landingPage, referrer, updateTouch } = useAttribution()
+  const { preRegisterLead, getPreAttributionData, clearPreAttributionData } = usePreAttribution()
 
-  // Function to build iframe URL with UTMs (same logic as BookingModal)
+  // Enhanced function to build iframe URL with UTMs + HubSpot-specific tracking (VSL version)
   const buildIframeSrcWithUTMs = (baseUrl: string) => {
-    console.log('🔧 VSL: Building iframe URL with UTMs...')
+    console.log('🔧 VSL: Building enhanced iframe URL with UTMs + HubSpot tracking...')
 
     try {
       const url = new URL(baseUrl)
 
-      // Add UTM parameters if they exist
+      // Add standard UTM parameters
       Object.entries(utmParams).forEach(([key, value]) => {
         if (value && typeof value === 'string') {
           url.searchParams.set(key, value)
-          console.log(`✅ VSL: Added ${key}=${value} to iframe URL`)
+          console.log(`✅ VSL: Added UTM ${key}=${value} to iframe URL`)
         }
       })
 
+      // Add HubSpot-specific tracking parameters
+      if (Object.keys(utmParams).length > 0) {
+        // HubSpot tracking context for VSL
+        const hsContext = {
+          source: utmParams.utm_source || 'vsl',
+          medium: utmParams.utm_medium || 'video',
+          campaign: utmParams.utm_campaign || 'vsl_demo',
+          content: utmParams.utm_content || 'vsl_booking',
+          term: utmParams.utm_term || '',
+          referrer: referrer || '',
+          landing_page: landingPage,
+          booking_type: 'vsl_demo'
+        }
+
+        url.searchParams.set('hs_context', JSON.stringify(hsContext))
+        url.searchParams.set('hsCtaTracking', 'vsl_enabled')
+        url.searchParams.set('hs_attribution_source', utmParams.utm_source || 'vsl')
+        url.searchParams.set('booking_source', 'vsl_modal')
+
+        console.log('🏷️ VSL: Added HubSpot context:', hsContext)
+        console.log('🎯 VSL: Added hsCtaTracking and VSL-specific params')
+      }
+
+      // Add pre-attribution reference if available
+      const preAttrData = getPreAttributionData()
+      if (preAttrData) {
+        url.searchParams.set('pre_attr_session', preAttrData.sessionId)
+        url.searchParams.set('vsl_session', 'true')
+        console.log('📎 VSL: Added pre-attribution session reference:', preAttrData.sessionId)
+      }
+
       const finalUrl = url.toString()
-      console.log('🎯 VSL: Final iframe URL with UTMs:', finalUrl)
+      console.log('🎯 VSL: Final enhanced iframe URL:', finalUrl)
       return finalUrl
     } catch (error) {
-      console.error('❌ VSL: Error building iframe URL:', error)
+      console.error('❌ VSL: Error building enhanced iframe URL:', error)
       return baseUrl
     }
   }
@@ -44,6 +77,20 @@ export function VSLBookingModal({ isOpen, onClose }: VSLBookingModalProps) {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
       setIsLoading(true)
+
+      // Step 0: Execute pre-attribution when VSL modal opens (if UTMs available)
+      if (Object.keys(utmParams).some(key => utmParams[key as keyof typeof utmParams])) {
+        console.log('🎯 VSL MODAL OPENED: Executing pre-attribution...')
+        preRegisterLead().then(result => {
+          if (result.success) {
+            console.log('✅ VSL: Pre-attribution completed successfully')
+          } else {
+            console.warn('⚠️ VSL: Pre-attribution failed:', result.error)
+          }
+        }).catch(error => {
+          console.error('❌ VSL: Pre-attribution error:', error)
+        })
+      }
 
       // Wait for iframe to be rendered, then dynamically set its src with UTMs
       setTimeout(() => {
@@ -57,7 +104,7 @@ export function VSLBookingModal({ isOpen, onClose }: VSLBookingModalProps) {
             const urlWithUtms = buildIframeSrcWithUTMs(baseUrl)
             iframe.src = urlWithUtms
             setMeetingUrl(urlWithUtms)
-            console.log('🎯 VSL: IFRAME SRC SET WITH UTMs:', urlWithUtms)
+            console.log('🎯 VSL: IFRAME SRC SET WITH ENHANCED UTMs:', urlWithUtms)
           } else {
             iframe.src = baseUrl
             setMeetingUrl(baseUrl)
@@ -129,6 +176,47 @@ export function VSLBookingModal({ isOpen, onClose }: VSLBookingModalProps) {
                   const result = await response.json()
                   if (result.success) {
                     console.log('✅ VSL: Attribution sent successfully! Contact ID:', result.contactId)
+
+                    // Level 3: Trigger post-booking attribution correction for VSL
+                    console.log('🔧 LEVEL 3 VSL: Initiating post-booking attribution correction...')
+                    const sessionData = {
+                      utmParams,
+                      landingPage,
+                      referrer,
+                      sessionId: getPreAttributionData()?.sessionId || `vsl-session-${Date.now()}`,
+                      timestamp: new Date().toISOString()
+                    }
+
+                    // Trigger post-booking correction after a short delay
+                    setTimeout(async () => {
+                      try {
+                        const correctionResponse = await fetch('/api/post-booking-correction', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json'
+                          },
+                          body: JSON.stringify({
+                            email: contactEmail,
+                            sessionData,
+                            forceCorrection: false
+                          })
+                        })
+
+                        const correctionResult = await correctionResponse.json()
+                        if (correctionResult.success) {
+                          console.log('✅ LEVEL 3 VSL: Post-booking correction completed successfully!')
+                          console.log('📊 VSL Correction details:', {
+                            original: correctionResult.originalAttribution,
+                            corrected: correctionResult.newAttribution,
+                            timestamp: correctionResult.correctionTimestamp
+                          })
+                        } else {
+                          console.log('ℹ️ LEVEL 3 VSL: Post-booking correction not needed or failed:', correctionResult.message || correctionResult.error)
+                        }
+                      } catch (error) {
+                        console.error('❌ LEVEL 3 VSL: Post-booking correction error:', error)
+                      }
+                    }, 5000) // Wait 5 seconds for HubSpot to process the contact
                   } else {
                     console.error('❌ VSL: Attribution API error:', result.error)
                   }
@@ -169,6 +257,41 @@ export function VSLBookingModal({ isOpen, onClose }: VSLBookingModalProps) {
                     const result = await response.json()
                     if (result.success) {
                       console.log('✅ VSL FALLBACK: Attribution sent successfully! Contact ID:', result.contactId)
+
+                      // Level 3: Trigger post-booking correction for VSL fallback
+                      console.log('🔧 LEVEL 3 VSL FALLBACK: Initiating post-booking attribution correction...')
+                      const sessionData = {
+                        utmParams,
+                        landingPage,
+                        referrer,
+                        sessionId: getPreAttributionData()?.sessionId || `vsl-fallback-${Date.now()}`,
+                        timestamp: new Date().toISOString()
+                      }
+
+                      setTimeout(async () => {
+                        try {
+                          const correctionResponse = await fetch('/api/post-booking-correction', {
+                            method: 'POST',
+                            headers: {
+                              'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                              email: fallbackEmail,
+                              sessionData,
+                              forceCorrection: false
+                            })
+                          })
+
+                          const correctionResult = await correctionResponse.json()
+                          if (correctionResult.success) {
+                            console.log('✅ LEVEL 3 VSL FALLBACK: Post-booking correction completed successfully!')
+                          } else {
+                            console.log('ℹ️ LEVEL 3 VSL FALLBACK: Post-booking correction not needed:', correctionResult.message || correctionResult.error)
+                          }
+                        } catch (error) {
+                          console.error('❌ LEVEL 3 VSL FALLBACK: Post-booking correction error:', error)
+                        }
+                      }, 5000)
                     } else {
                       console.error('❌ VSL FALLBACK: Attribution API error:', result.error)
                     }
@@ -269,6 +392,39 @@ export function VSLBookingModal({ isOpen, onClose }: VSLBookingModalProps) {
               const result = await response.json()
               if (result.success) {
                 console.log('✅ VSL: Attribution sent on close! Contact ID:', result.contactId)
+
+                // Level 3: Trigger post-booking correction on VSL close
+                console.log('🔧 LEVEL 3 VSL CLOSE: Initiating post-booking attribution correction...')
+                const sessionData = {
+                  utmParams,
+                  landingPage,
+                  referrer,
+                  sessionId: getPreAttributionData()?.sessionId || `vsl-close-${Date.now()}`,
+                  timestamp: new Date().toISOString()
+                }
+
+                setTimeout(async () => {
+                  try {
+                    const correctionResponse = await fetch('/api/post-booking-correction', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify({
+                        email: foundEmail,
+                        sessionData,
+                        forceCorrection: false
+                      })
+                    })
+
+                    const correctionResult = await correctionResponse.json()
+                    if (correctionResult.success) {
+                      console.log('✅ LEVEL 3 VSL CLOSE: Post-booking correction completed!')
+                    }
+                  } catch (error) {
+                    console.error('❌ LEVEL 3 VSL CLOSE: Post-booking correction error:', error)
+                  }
+                }, 5000)
               }
             } catch (error) {
               console.error('❌ VSL: Error on close:', error)

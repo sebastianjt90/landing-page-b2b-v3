@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { translations } from '@/lib/translations'
 import { useAttribution } from '@/hooks/use-attribution'
+import { usePreAttribution } from '@/hooks/use-pre-attribution'
 
 // Global function type declaration
 declare global {
@@ -88,6 +89,42 @@ async function attemptAttributionCapture(
             const result = await response.json()
             if (result.success) {
                 console.log(`✅ ${method}: Attribution sent successfully! Contact ID:`, result.contactId)
+
+                // Level 3: Trigger post-booking correction for helper function
+                console.log(`🔧 LEVEL 3 ${method}: Initiating post-booking attribution correction...`)
+                const sessionData = {
+                    utmParams,
+                    landingPage,
+                    referrer,
+                    sessionId: `${method.toLowerCase()}-${Date.now()}`,
+                    timestamp: new Date().toISOString()
+                }
+
+                setTimeout(async () => {
+                    try {
+                        const correctionResponse = await fetch('/api/post-booking-correction', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                email: emailFound,
+                                sessionData,
+                                forceCorrection: false
+                            })
+                        })
+
+                        const correctionResult = await correctionResponse.json()
+                        if (correctionResult.success) {
+                            console.log(`✅ LEVEL 3 ${method}: Post-booking correction completed!`)
+                        } else {
+                            console.log(`ℹ️ LEVEL 3 ${method}: Post-booking correction not needed:`, correctionResult.message || correctionResult.error)
+                        }
+                    } catch (error) {
+                        console.error(`❌ LEVEL 3 ${method}: Post-booking correction error:`, error)
+                    }
+                }, 5000)
+
                 return true
             } else {
                 console.error(`❌ ${method}: Attribution API error:`, result.error)
@@ -108,28 +145,57 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
     const [meetingUrl, setMeetingUrl] = useState<string>('')
     const [iframeId] = useState(() => `hubspot-meetings-iframe-${Date.now()}`)
     const { utmParams, landingPage, referrer, updateTouch } = useAttribution()
+    const { preRegisterLead, getPreAttributionData, clearPreAttributionData } = usePreAttribution()
     const t = translations[locale as keyof typeof translations] || translations.es
 
-    // Function to build iframe URL with UTMs (adapted from your research)
+    // Enhanced function to build iframe URL with UTMs + HubSpot-specific tracking
     const buildIframeSrcWithUTMs = (baseUrl: string) => {
-        console.log('🔧 Building iframe URL with UTMs...')
+        console.log('🔧 Building enhanced iframe URL with UTMs + HubSpot tracking...')
 
         try {
             const url = new URL(baseUrl)
 
-            // Add UTM parameters if they exist
+            // Add standard UTM parameters
             Object.entries(utmParams).forEach(([key, value]) => {
                 if (value && typeof value === 'string') {
                     url.searchParams.set(key, value)
-                    console.log(`✅ Added ${key}=${value} to iframe URL`)
+                    console.log(`✅ Added UTM ${key}=${value} to iframe URL`)
                 }
             })
 
+            // Add HubSpot-specific tracking parameters
+            if (Object.keys(utmParams).length > 0) {
+                // HubSpot tracking context
+                const hsContext = {
+                    source: utmParams.utm_source || 'direct',
+                    medium: utmParams.utm_medium || 'website',
+                    campaign: utmParams.utm_campaign || 'default',
+                    content: utmParams.utm_content || '',
+                    term: utmParams.utm_term || '',
+                    referrer: referrer || '',
+                    landing_page: landingPage
+                }
+
+                url.searchParams.set('hs_context', JSON.stringify(hsContext))
+                url.searchParams.set('hsCtaTracking', 'enabled')
+                url.searchParams.set('hs_attribution_source', utmParams.utm_source || 'website')
+
+                console.log('🏷️ Added HubSpot context:', hsContext)
+                console.log('🎯 Added hsCtaTracking and hs_attribution_source')
+            }
+
+            // Add pre-attribution reference if available
+            const preAttrData = getPreAttributionData()
+            if (preAttrData) {
+                url.searchParams.set('pre_attr_session', preAttrData.sessionId)
+                console.log('📎 Added pre-attribution session reference:', preAttrData.sessionId)
+            }
+
             const finalUrl = url.toString()
-            console.log('🎯 Final iframe URL with UTMs:', finalUrl)
+            console.log('🎯 Final enhanced iframe URL:', finalUrl)
             return finalUrl
         } catch (error) {
-            console.error('❌ Error building iframe URL:', error)
+            console.error('❌ Error building enhanced iframe URL:', error)
             return baseUrl
         }
     }
@@ -139,6 +205,20 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
         if (isOpen) {
             document.body.style.overflow = 'hidden'
             setIsLoading(true)
+
+            // Step 0: Execute pre-attribution when modal opens (if UTMs available)
+            if (Object.keys(utmParams).some(key => utmParams[key as keyof typeof utmParams])) {
+                console.log('🎯 MODAL OPENED: Executing pre-attribution...')
+                preRegisterLead().then(result => {
+                    if (result.success) {
+                        console.log('✅ Pre-attribution completed successfully')
+                    } else {
+                        console.warn('⚠️ Pre-attribution failed:', result.error)
+                    }
+                }).catch(error => {
+                    console.error('❌ Pre-attribution error:', error)
+                })
+            }
 
             // Step 1: Wait for iframe to be rendered, then dynamically set its src with UTMs
             setTimeout(() => {
@@ -152,7 +232,7 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                         const urlWithUtms = buildIframeSrcWithUTMs(baseUrl)
                         iframe.src = urlWithUtms
                         setMeetingUrl(urlWithUtms)
-                        console.log('🎯 IFRAME SRC SET WITH UTMs:', urlWithUtms)
+                        console.log('🎯 IFRAME SRC SET WITH ENHANCED UTMs:', urlWithUtms)
                     } else {
                         iframe.src = baseUrl
                         setMeetingUrl(baseUrl)
@@ -287,6 +367,47 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                                     const result = await response.json()
                                     if (result.success) {
                                         console.log('✅ Attribution sent successfully! Contact ID:', result.contactId)
+
+                                        // Level 3: Trigger post-booking attribution correction
+                                        console.log('🔧 LEVEL 3: Initiating post-booking attribution correction...')
+                                        const sessionData = {
+                                            utmParams,
+                                            landingPage,
+                                            referrer,
+                                            sessionId: getPreAttributionData()?.sessionId || `session-${Date.now()}`,
+                                            timestamp: new Date().toISOString()
+                                        }
+
+                                        // Trigger post-booking correction after a short delay
+                                        setTimeout(async () => {
+                                            try {
+                                                const correctionResponse = await fetch('/api/post-booking-correction', {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        'Content-Type': 'application/json'
+                                                    },
+                                                    body: JSON.stringify({
+                                                        email: contactEmail,
+                                                        sessionData,
+                                                        forceCorrection: false
+                                                    })
+                                                })
+
+                                                const correctionResult = await correctionResponse.json()
+                                                if (correctionResult.success) {
+                                                    console.log('✅ LEVEL 3: Post-booking correction completed successfully!')
+                                                    console.log('📊 Correction details:', {
+                                                        original: correctionResult.originalAttribution,
+                                                        corrected: correctionResult.newAttribution,
+                                                        timestamp: correctionResult.correctionTimestamp
+                                                    })
+                                                } else {
+                                                    console.log('ℹ️ LEVEL 3: Post-booking correction not needed or failed:', correctionResult.message || correctionResult.error)
+                                                }
+                                            } catch (error) {
+                                                console.error('❌ LEVEL 3: Post-booking correction error:', error)
+                                            }
+                                        }, 5000) // Wait 5 seconds for HubSpot to process the contact
                                     } else {
                                         console.error('❌ Attribution API error:', result.error)
                                     }
@@ -328,6 +449,41 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                                         const result = await response.json()
                                         if (result.success) {
                                             console.log('✅ FALLBACK: Attribution sent successfully! Contact ID:', result.contactId)
+
+                                            // Level 3: Trigger post-booking correction for fallback email too
+                                            console.log('🔧 LEVEL 3 FALLBACK: Initiating post-booking attribution correction...')
+                                            const sessionData = {
+                                                utmParams,
+                                                landingPage,
+                                                referrer,
+                                                sessionId: getPreAttributionData()?.sessionId || `fallback-session-${Date.now()}`,
+                                                timestamp: new Date().toISOString()
+                                            }
+
+                                            setTimeout(async () => {
+                                                try {
+                                                    const correctionResponse = await fetch('/api/post-booking-correction', {
+                                                        method: 'POST',
+                                                        headers: {
+                                                            'Content-Type': 'application/json'
+                                                        },
+                                                        body: JSON.stringify({
+                                                            email: fallbackEmail,
+                                                            sessionData,
+                                                            forceCorrection: false
+                                                        })
+                                                    })
+
+                                                    const correctionResult = await correctionResponse.json()
+                                                    if (correctionResult.success) {
+                                                        console.log('✅ LEVEL 3 FALLBACK: Post-booking correction completed successfully!')
+                                                    } else {
+                                                        console.log('ℹ️ LEVEL 3 FALLBACK: Post-booking correction not needed:', correctionResult.message || correctionResult.error)
+                                                    }
+                                                } catch (error) {
+                                                    console.error('❌ LEVEL 3 FALLBACK: Post-booking correction error:', error)
+                                                }
+                                            }, 5000)
                                         } else {
                                             console.error('❌ FALLBACK: Attribution API error:', result.error)
                                         }
@@ -411,6 +567,39 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                                 const result = await response.json()
                                 if (result.success) {
                                     console.log('✅ Attribution sent via interaction! Contact ID:', result.contactId)
+
+                                    // Level 3: Trigger post-booking correction for interaction method
+                                    console.log('🔧 LEVEL 3 INTERACTION: Initiating post-booking attribution correction...')
+                                    const sessionData = {
+                                        utmParams,
+                                        landingPage,
+                                        referrer,
+                                        sessionId: getPreAttributionData()?.sessionId || `interaction-session-${Date.now()}`,
+                                        timestamp: new Date().toISOString()
+                                    }
+
+                                    setTimeout(async () => {
+                                        try {
+                                            const correctionResponse = await fetch('/api/post-booking-correction', {
+                                                method: 'POST',
+                                                headers: {
+                                                    'Content-Type': 'application/json'
+                                                },
+                                                body: JSON.stringify({
+                                                    email: foundEmail,
+                                                    sessionData,
+                                                    forceCorrection: false
+                                                })
+                                            })
+
+                                            const correctionResult = await correctionResponse.json()
+                                            if (correctionResult.success) {
+                                                console.log('✅ LEVEL 3 INTERACTION: Post-booking correction completed!')
+                                            }
+                                        } catch (error) {
+                                            console.error('❌ LEVEL 3 INTERACTION: Post-booking correction error:', error)
+                                        }
+                                    }, 5000)
                                 } else {
                                     console.error('❌ Attribution API error via interaction:', result.error)
                                 }
@@ -459,6 +648,39 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                             const result = await response.json()
                             if (result.success) {
                                 console.log('✅ Attribution sent via fallback! Contact ID:', result.contactId)
+
+                                // Level 3: Trigger post-booking correction for time-based fallback
+                                console.log('🔧 LEVEL 3 TIME-FALLBACK: Initiating post-booking attribution correction...')
+                                const sessionData = {
+                                    utmParams,
+                                    landingPage,
+                                    referrer,
+                                    sessionId: getPreAttributionData()?.sessionId || `time-fallback-${Date.now()}`,
+                                    timestamp: new Date().toISOString()
+                                }
+
+                                setTimeout(async () => {
+                                    try {
+                                        const correctionResponse = await fetch('/api/post-booking-correction', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: JSON.stringify({
+                                                email: inputElement.value,
+                                                sessionData,
+                                                forceCorrection: false
+                                            })
+                                        })
+
+                                        const correctionResult = await correctionResponse.json()
+                                        if (correctionResult.success) {
+                                            console.log('✅ LEVEL 3 TIME-FALLBACK: Post-booking correction completed!')
+                                        }
+                                    } catch (error) {
+                                        console.error('❌ LEVEL 3 TIME-FALLBACK: Post-booking correction error:', error)
+                                    }
+                                }, 5000)
                             }
                         } catch (error) {
                             console.error('❌ Error in fallback attribution:', error)
