@@ -120,7 +120,7 @@ async function attemptAttributionCapture(
                         } else {
                             console.log(`ℹ️ LEVEL 3 ${method}: Post-booking correction not needed:`, correctionResult.message || correctionResult.error)
                         }
-                    } catch (error) {
+                    } catch (_error) {
                         console.error(`❌ LEVEL 3 ${method}: Post-booking correction error:`, _error)
                     }
                 }, 5000)
@@ -130,7 +130,7 @@ async function attemptAttributionCapture(
                 console.error(`❌ ${method}: Attribution API error:`, result.error)
                 return false
             }
-        } catch (error) {
+        } catch (_error) {
             console.error(`❌ ${method}: Network error:`, _error)
             return false
         }
@@ -194,7 +194,7 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
             const finalUrl = url.toString()
             console.log('🎯 Final enhanced iframe URL:', finalUrl)
             return finalUrl
-        } catch (error) {
+        } catch (_error) {
             console.error('❌ Error building enhanced iframe URL:', _error)
             return baseUrl
         }
@@ -215,7 +215,7 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                     } else {
                         console.warn('⚠️ Pre-attribution failed:', result.error)
                     }
-                }).catch(error => {
+                }).catch(_error => {
                     console.error('❌ Pre-attribution error:', _error)
                 })
             }
