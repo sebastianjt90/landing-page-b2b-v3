@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Script from 'next/script'
 import '@/app/globals.css'
 import { baseMetadata, enMetadata } from '@/app/metadata'
+import { SimpleAttribution } from '@/components/simple-attribution'
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID || 'GTM-T7BT77WG'
 const HUBSPOT_PORTAL_ID = process.env.NEXT_PUBLIC_HUBSPOT_PORTAL_ID || '21568098'
@@ -108,6 +109,7 @@ export default async function LocaleLayout({
           />
         </noscript>
         
+        <SimpleAttribution />
         {children}
         
         {/* HubSpot Integration with Pre-captured UTMs */}

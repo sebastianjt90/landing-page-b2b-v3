@@ -150,9 +150,52 @@ export function VSLBookingModal({ isOpen, onClose }: VSLBookingModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-        onClick={onClose}
+        onClick={async () => {
+          // Before closing, try to capture attribution
+          console.log('🚪 VSL Backdrop clicked - attempting final attribution capture')
+
+          // Simple email capture for VSL
+          const emailInputs = document.querySelectorAll('input[type="email"]')
+          let foundEmail = ''
+
+          emailInputs.forEach(input => {
+            const inputElement = input as HTMLInputElement
+            if (inputElement.value && inputElement.value.includes('@')) {
+              foundEmail = inputElement.value
+            }
+          })
+
+          if (foundEmail) {
+            try {
+              const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  email: foundEmail,
+                  firstname: '',
+                  lastname: '',
+                  utmParams,
+                  landingPage,
+                  referrer,
+                  isFirstTouch: false
+                })
+              })
+
+              const result = await response.json()
+              if (result.success) {
+                console.log('✅ VSL: Attribution sent on close! Contact ID:', result.contactId)
+              }
+            } catch (error) {
+              console.error('❌ VSL: Error on close:', error)
+            }
+          }
+
+          onClose()
+        }}
       />
       
       {/* Modal - Sin marco, solo el calendario */}

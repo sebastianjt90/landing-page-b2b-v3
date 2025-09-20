@@ -19,6 +19,91 @@ interface BookingModalProps {
     locale?: string
 }
 
+// Helper function to attempt attribution capture
+async function attemptAttributionCapture(
+    utmParams: any,
+    landingPage: string,
+    referrer: string,
+    method: string
+) {
+    console.log(`🔍 ${method}: Attempting attribution capture...`)
+
+    // Try different methods to find email
+    let emailFound = ''
+
+    // Method 1: Check all email inputs on the entire page
+    const allEmailInputs = document.querySelectorAll('input[type="email"]')
+    allEmailInputs.forEach(input => {
+        const inputElement = input as HTMLInputElement
+        if (inputElement.value && inputElement.value.includes('@') && inputElement.value.length > 5) {
+            emailFound = inputElement.value
+            console.log(`📧 ${method}: Found email in page input:`, emailFound)
+        }
+    })
+
+    // Method 2: Check for any forms with email data
+    if (!emailFound) {
+        const forms = document.querySelectorAll('form')
+        forms.forEach(form => {
+            const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement
+            if (emailInput && emailInput.value) {
+                emailFound = emailInput.value
+                console.log(`📧 ${method}: Found email in form:`, emailFound)
+            }
+        })
+    }
+
+    // Method 3: Check localStorage or sessionStorage for email
+    if (!emailFound) {
+        try {
+            const storedEmail = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail')
+            if (storedEmail && storedEmail.includes('@')) {
+                emailFound = storedEmail
+                console.log(`📧 ${method}: Found email in storage:`, emailFound)
+            }
+        } catch (error) {
+            console.log('Storage check failed:', error)
+        }
+    }
+
+    if (emailFound) {
+        console.log(`🚀 ${method}: Sending attribution for:`, emailFound)
+
+        try {
+            const response = await fetch('/api/contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: emailFound,
+                    firstname: '',
+                    lastname: '',
+                    utmParams,
+                    landingPage,
+                    referrer,
+                    isFirstTouch: false
+                })
+            })
+
+            const result = await response.json()
+            if (result.success) {
+                console.log(`✅ ${method}: Attribution sent successfully! Contact ID:`, result.contactId)
+                return true
+            } else {
+                console.error(`❌ ${method}: Attribution API error:`, result.error)
+                return false
+            }
+        } catch (error) {
+            console.error(`❌ ${method}: Network error:`, error)
+            return false
+        }
+    } else {
+        console.log(`⚠️ ${method}: No email found`)
+        return false
+    }
+}
+
 export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalProps) {
     const [isLoading, setIsLoading] = useState(true)
     const [meetingUrl, setMeetingUrl] = useState<string>('')
@@ -49,12 +134,37 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
 
             // Step 2: Set up HubSpot meeting event listener for when booking actually happens
             const handleMeetingBooked = (event: MessageEvent) => {
-                // Check if this is a HubSpot meeting message
-                if (event.origin.includes('hubspot.com') || event.origin.includes('hs-sites.com')) {
-                    const data = event.data
+                // Log ALL messages for debugging
+                console.log('📨 Message received:', {
+                    origin: event.origin,
+                    data: event.data,
+                    type: typeof event.data
+                })
 
-                    // HubSpot sends different event types - we want meeting bookings
-                    if (data && (data.type === 'hsFormCallback' || data.eventName === 'onFormSubmitted' || data.type === 'MEETING_BOOKED')) {
+                // Check if this is a HubSpot meeting message (expanded origins)
+                if (event.origin.includes('hubspot.com') ||
+                    event.origin.includes('hs-sites.com') ||
+                    event.origin.includes('meetings.hubspot.com') ||
+                    event.origin.includes('hs-analytics.net')) {
+
+                    const data = event.data
+                    console.log('🎯 HubSpot message detected:', data)
+
+                    // HubSpot sends different event types - expanded detection
+                    const isBookingEvent = data && (
+                        data.type === 'hsFormCallback' ||
+                        data.eventName === 'onFormSubmitted' ||
+                        data.type === 'MEETING_BOOKED' ||
+                        data.type === 'meeting_booked' ||
+                        data.eventName === 'meeting_booked' ||
+                        data.type === 'FORM_SUBMITTED' ||
+                        data.action === 'meeting_booked' ||
+                        (data.type === 'resize' && data.meetingBooked) ||
+                        (typeof data === 'string' && data.includes('meeting')) ||
+                        (data.event && data.event.includes('meeting'))
+                    )
+
+                    if (isBookingEvent) {
                         console.log('🎯 MEETING BOOKING DETECTED - Using NEW attribution system')
 
                         // Update touchpoint
@@ -158,19 +268,129 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
             // Add event listener for HubSpot meeting events
             window.addEventListener('message', handleMeetingBooked)
 
-            // Log tracking parameters for debugging (only in development)
-            if (process.env.NODE_ENV === 'development') {
-                const trackingParams = captureTrackingParams()
-                console.log('🚀 BOOKING MODAL DEBUG SUMMARY:')
-                console.log('📊 UTM Parameters:', formatTrackingParamsForLog(trackingParams))
-                debugUTMCapture()
-                console.log('🔗 Meeting URL with UTMs:', urlWithUtms)
-                console.log('📅 Meeting iframe loading... Waiting for booking event')
+            // Alternative method: Detect when user interacts with iframe for extended time
+            // This suggests they might be filling out the booking form
+            let interactionTimeout: NodeJS.Timeout
+            let interactionCount = 0
+
+            const handleIframeInteraction = () => {
+                interactionCount++
+                console.log(`🖱️ Iframe interaction detected (${interactionCount})`)
+
+                // Clear previous timeout
+                if (interactionTimeout) {
+                    clearTimeout(interactionTimeout)
+                }
+
+                // If user has been interacting for a while, try to capture attribution
+                if (interactionCount >= 3) {
+                    interactionTimeout = setTimeout(async () => {
+                        console.log('⏰ Extended interaction detected - attempting attribution capture')
+
+                        // Try to capture attribution without waiting for specific event
+                        try {
+                            // Try to find email in any forms on the page
+                            const emailInputs = document.querySelectorAll('input[type="email"]')
+                            let foundEmail = ''
+
+                            emailInputs.forEach(input => {
+                                const inputElement = input as HTMLInputElement
+                                if (inputElement.value && inputElement.value.includes('@')) {
+                                    foundEmail = inputElement.value
+                                    console.log('📧 Found email via interaction method:', foundEmail)
+                                }
+                            })
+
+                            if (foundEmail) {
+                                console.log('🚀 Sending attribution via interaction method...')
+                                const response = await fetch('/api/contact', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        email: foundEmail,
+                                        firstname: '',
+                                        lastname: '',
+                                        utmParams,
+                                        landingPage,
+                                        referrer,
+                                        isFirstTouch: false
+                                    })
+                                })
+
+                                const result = await response.json()
+                                if (result.success) {
+                                    console.log('✅ Attribution sent via interaction! Contact ID:', result.contactId)
+                                } else {
+                                    console.error('❌ Attribution API error via interaction:', result.error)
+                                }
+                            }
+                        } catch (error) {
+                            console.error('❌ Error in interaction attribution:', error)
+                        }
+                    }, 10000) // Wait 10 seconds after last interaction
+                }
             }
+
+            // Listen for any iframe activity
+            const iframe = document.querySelector('iframe[src*="hubspot"]')
+            if (iframe) {
+                iframe.addEventListener('load', handleIframeInteraction)
+                // Note: We can't listen to events inside iframe due to CORS, but load events help
+            }
+
+            // Also try a simple time-based fallback
+            const timeBasedFallback = setTimeout(async () => {
+                console.log('⏰ Time-based fallback - checking for any email inputs...')
+
+                const emailInputs = document.querySelectorAll('input[type="email"]')
+                emailInputs.forEach(async (input) => {
+                    const inputElement = input as HTMLInputElement
+                    if (inputElement.value && inputElement.value.includes('@')) {
+                        console.log('📧 Found email via time-based fallback:', inputElement.value)
+
+                        try {
+                            const response = await fetch('/api/contact', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    email: inputElement.value,
+                                    firstname: '',
+                                    lastname: '',
+                                    utmParams,
+                                    landingPage,
+                                    referrer,
+                                    isFirstTouch: false
+                                })
+                            })
+
+                            const result = await response.json()
+                            if (result.success) {
+                                console.log('✅ Attribution sent via fallback! Contact ID:', result.contactId)
+                            }
+                        } catch (error) {
+                            console.error('❌ Error in fallback attribution:', error)
+                        }
+                    }
+                })
+            }, 30000) // Try after 30 seconds
+
+            // Log tracking parameters for debugging
+            console.log('🚀 BOOKING MODAL DEBUG SUMMARY:')
+            console.log('📊 UTM Parameters:', utmParams)
+            console.log('🌐 Landing Page:', landingPage)
+            console.log('🔗 Referrer:', referrer)
+            console.log('🔗 Meeting URL with UTMs:', urlWithUtms)
+            console.log('📅 Meeting iframe loading... Multiple detection methods active')
 
             // Cleanup function
             return () => {
                 window.removeEventListener('message', handleMeetingBooked)
+                if (interactionTimeout) clearTimeout(interactionTimeout)
+                if (timeBasedFallback) clearTimeout(timeBasedFallback)
             }
         } else {
             document.body.style.overflow = 'unset'
@@ -193,16 +413,26 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             {/* Backdrop */}
-            <div 
+            <div
                 className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-                onClick={onClose}
+                onClick={async () => {
+                    // Before closing, try to capture attribution
+                    console.log('🚪 Backdrop clicked - attempting final attribution capture')
+                    await attemptAttributionCapture(utmParams, landingPage, referrer, 'BACKDROP_CLICK')
+                    onClose()
+                }}
             />
             
             {/* Modal - Sin marco, solo el calendario */}
             <div className="relative overflow-hidden rounded-lg shadow-2xl" style={{ width: 'min(90vw, 1000px)', height: 'min(90vh, 750px)' }}>
                 {/* Botón de cerrar flotante */}
                 <button
-                    onClick={onClose}
+                    onClick={async () => {
+                        // Before closing, try to capture attribution
+                        console.log('🚪 Modal closing - attempting final attribution capture')
+                        await attemptAttributionCapture(utmParams, landingPage, referrer, 'MODAL_CLOSE')
+                        onClose()
+                    }}
                     className="absolute -top-12 right-0 z-20 p-2 bg-white hover:bg-gray-100 rounded-full shadow-lg transition-all"
                     aria-label={locale === 'en' ? 'Close modal' : 'Cerrar modal'}>
                     <X className="w-5 h-5" style={{ color: '#00251D' }} />
