@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
-import { buildMeetingUrlWithCurrentParams, captureTrackingParams, formatTrackingParamsForLog, captureAndSendUTMsToHubSpotAsync } from '@/lib/utm-utils'
+import { buildMeetingUrlWithCurrentParams } from '@/lib/utm-utils'
 import { useAttribution } from '@/hooks/use-attribution'
 
 interface VSLBookingModalProps {
@@ -136,7 +136,7 @@ export function VSLBookingModal({ isOpen, onClose }: VSLBookingModalProps) {
     return () => {
       document.body.style.overflow = 'unset'
     }
-  }, [isOpen])
+  }, [isOpen, utmParams, landingPage, referrer, updateTouch])
 
   const handleIframeLoad = () => {
     // Dar un poco más de tiempo para que el contenido del iframe se renderice

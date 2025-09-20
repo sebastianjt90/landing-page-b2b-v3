@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { translations } from '@/lib/translations'
-import { buildMeetingUrlWithCurrentParams, captureTrackingParams, formatTrackingParamsForLog, debugUTMCapture, captureAndSendUTMsToHubSpotAsync, scheduleDelayedAttribution } from '@/lib/utm-utils'
+import { buildMeetingUrlWithCurrentParams } from '@/lib/utm-utils'
 import { useAttribution } from '@/hooks/use-attribution'
 
 // Global function type declaration
@@ -21,7 +21,7 @@ interface BookingModalProps {
 
 // Helper function to attempt attribution capture
 async function attemptAttributionCapture(
-    utmParams: any,
+    utmParams: Record<string, string>,
     landingPage: string,
     referrer: string,
     method: string
@@ -61,8 +61,8 @@ async function attemptAttributionCapture(
                 emailFound = storedEmail
                 console.log(`📧 ${method}: Found email in storage:`, emailFound)
             }
-        } catch (error) {
-            console.log('Storage check failed:', error)
+        } catch {
+            console.log('Storage check failed')
         }
     }
 
@@ -399,7 +399,7 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
         return () => {
             document.body.style.overflow = 'unset'
         }
-    }, [isOpen, t.booking.meetingUrl])
+    }, [isOpen, t.booking.meetingUrl, utmParams, landingPage, referrer, updateTouch])
 
     const handleIframeLoad = () => {
         // Dar un poco más de tiempo para que el contenido del iframe se renderice
