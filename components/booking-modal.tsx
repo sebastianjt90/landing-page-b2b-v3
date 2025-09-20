@@ -22,16 +22,64 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
             document.body.style.overflow = 'hidden'
             setIsLoading(true)
 
-            // Step 1: Send UTMs directly to HubSpot tracking FIRST (async with retry)
-            console.log('🎯 BOOKING MODAL OPENED - Sending UTMs to HubSpot')
-            captureAndSendUTMsToHubSpotAsync().then(trackingSent => {
-                console.log(`📡 Async HubSpot Tracking Result: ${trackingSent ? 'SUCCESS ✅' : 'FAILED ❌'}`)
-            })
-
-            // Step 2: Build meeting URL with UTM parameters (as backup/fallback)
+            // Step 1: Build meeting URL with UTM parameters
             const baseUrl = t.booking.meetingUrl
             const urlWithUtms = buildMeetingUrlWithCurrentParams(baseUrl)
             setMeetingUrl(urlWithUtms)
+
+            // Step 2: Set up HubSpot meeting event listener for when booking actually happens
+            const handleMeetingBooked = (event: MessageEvent) => {
+                // Check if this is a HubSpot meeting message
+                if (event.origin.includes('hubspot.com') || event.origin.includes('hs-sites.com')) {
+                    const data = event.data
+
+                    // HubSpot sends different event types - we want meeting bookings
+                    if (data && (data.type === 'hsFormCallback' || data.eventName === 'onFormSubmitted' || data.type === 'MEETING_BOOKED')) {
+                        console.log('🎯 MEETING BOOKING DETECTED - Sending UTMs to HubSpot NOW')
+
+                        // Send UTMs to HubSpot when meeting is actually booked
+                        captureAndSendUTMsToHubSpotAsync().then(trackingSent => {
+                            console.log(`📡 Meeting Booked - HubSpot Tracking Result: ${trackingSent ? 'SUCCESS ✅' : 'FAILED ❌'}`)
+                        })
+
+                        // Also try to update the contact directly via HubSpot forms API
+                        const trackingParams = captureTrackingParams()
+                        if (window.hbspt && window.hbspt.forms && Object.keys(trackingParams).length > 0) {
+                            console.log('📝 Updating HubSpot contact properties with UTM data')
+                            try {
+                                // Create a hidden form submission to update contact properties
+                                window.hbspt.forms.create({
+                                    portalId: '21568098',
+                                    formId: 'utm-attribution-form',
+                                    target: '#hidden-form-container',
+                                    onFormReady: function() {
+                                        // Submit form immediately with UTM data
+                                        const form = document.querySelector('#hidden-form-container form') as HTMLFormElement
+                                        if (form) {
+                                            // Add UTM parameters as hidden fields
+                                            Object.entries(trackingParams).forEach(([key, value]) => {
+                                                const input = document.createElement('input')
+                                                input.type = 'hidden'
+                                                input.name = key
+                                                input.value = value || ''
+                                                form.appendChild(input)
+                                            })
+
+                                            // Submit the form
+                                            form.submit()
+                                        }
+                                    }
+                                })
+                            } catch (error) {
+                                console.warn('Could not create UTM attribution form:', error)
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Add event listener for HubSpot meeting events
+            window.addEventListener('message', handleMeetingBooked)
 
             // Log tracking parameters for debugging (only in development)
             if (process.env.NODE_ENV === 'development') {
@@ -39,8 +87,13 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                 console.log('🚀 BOOKING MODAL DEBUG SUMMARY:')
                 console.log('📊 UTM Parameters:', formatTrackingParamsForLog(trackingParams))
                 debugUTMCapture()
-                console.log('🔗 Meeting URL with UTMs (fallback):', urlWithUtms)
-                console.log('📅 Meeting iframe will load next')
+                console.log('🔗 Meeting URL with UTMs:', urlWithUtms)
+                console.log('📅 Meeting iframe loading... Waiting for booking event')
+            }
+
+            // Cleanup function
+            return () => {
+                window.removeEventListener('message', handleMeetingBooked)
             }
         } else {
             document.body.style.overflow = 'unset'
@@ -116,6 +169,9 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                         title={locale === 'en' ? 'Schedule a meeting' : 'Agendar una reunión'}
                     />
                 </div>
+
+                {/* Hidden container for UTM attribution form */}
+                <div id="hidden-form-container" style={{ display: 'none' }}></div>
             </div>
         </div>
     )

@@ -201,7 +201,7 @@ export function waitForHubSpotAPI(maxAttempts: number = 20, delay: number = 500)
 
 /**
  * Sends UTM tracking parameters directly to HubSpot tracking
- * Uses HubSpot's identify API to associate UTMs with the current visitor
+ * Uses multiple methods to ensure the best chance of successful attribution
  */
 export function sendUTMsToHubSpot(params: TrackingParams): boolean {
   if (typeof window === 'undefined') {
@@ -231,22 +231,49 @@ export function sendUTMsToHubSpot(params: TrackingParams): boolean {
       window._hsq.push(['identify', params])
       trackingSent = true
     }
-    // Method 3: Use HubSpot forms API if available
-    else if (window.hbspt && window.hbspt.forms) {
-      console.log('📡 HubSpot forms API available, but no direct identify method')
-      // We could potentially use forms.getForm() and set hidden field values
-      // But this is more complex and method 1 & 2 should work
+
+    // Method 3: Try to update the hubspotutk cookie directly with attribution data
+    if (window.hbspt && window.hbspt.cta) {
+      try {
+        // Set analytics properties that HubSpot can pick up
+        window.hbspt.cta.load(21568098, 'utm-tracking', params)
+        console.log('📡 Sent UTMs via HubSpot CTA tracking')
+        trackingSent = true
+      } catch (error) {
+        console.log('CTA tracking not available:', error)
+      }
     }
-    else {
+
+    // Method 4: Use HubSpot Analytics API if available
+    if (window.hsq) {
+      try {
+        window.hsq.push(['setAttributionParams', params])
+        console.log('📡 Sent UTMs via HubSpot Analytics API')
+        trackingSent = true
+      } catch (error) {
+        console.log('Analytics API not available:', error)
+      }
+    }
+
+    // Method 5: Store in sessionStorage for forms to pick up later
+    try {
+      sessionStorage.setItem('hubspot_utm_params', JSON.stringify(params))
+      console.log('💾 Stored UTMs in sessionStorage for form pickup')
+      trackingSent = true
+    } catch (error) {
+      console.log('SessionStorage not available:', error)
+    }
+
+    if (!trackingSent) {
       console.warn('⚠️ HubSpot tracking not available. Ensure HubSpot script is loaded.')
       console.log('Available objects:', {
         hbspt: typeof window.hbspt,
         _hsq: typeof window._hsq,
-        hbspt_identify: window.hbspt?.identify ? 'available' : 'not available'
+        hbspt_identify: window.hbspt?.identify ? 'available' : 'not available',
+        hbspt_cta: window.hbspt?.cta ? 'available' : 'not available',
+        hsq: typeof window.hsq
       })
-    }
-
-    if (trackingSent) {
+    } else {
       console.log('✅ UTM tracking sent to HubSpot successfully')
     }
 

@@ -68,11 +68,82 @@ export default async function LocaleLayout({
         
         {children}
         
-        {/* HubSpot Tracking Code */}
+        {/* HubSpot Tracking Code - Changed to afterInteractive for better timing */}
         <Script
           id="hs-script-loader"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
           src={`https://js.hs-scripts.com/${HUBSPOT_PORTAL_ID}.js`}
+        />
+
+        {/* UTM Capture and HubSpot Integration */}
+        <Script
+          id="utm-hubspot-integration"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                // Capture UTMs immediately when page loads
+                function captureUTMsOnPageLoad() {
+                  // Get UTM parameters from URL
+                  const params = new URLSearchParams(window.location.search);
+                  const utmParams = {};
+
+                  // Standard UTM parameters
+                  const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+                  const clickIdKeys = ['gclid', 'fbclid', 'msclkid', 'ttclid', 'li_fat_id'];
+
+                  [...utmKeys, ...clickIdKeys].forEach(key => {
+                    const value = params.get(key);
+                    if (value) utmParams[key] = value;
+                  });
+
+                  // Store UTMs in sessionStorage immediately
+                  if (Object.keys(utmParams).length > 0) {
+                    try {
+                      sessionStorage.setItem('page_utm_params', JSON.stringify(utmParams));
+                      console.log('📊 Page Load UTMs captured:', utmParams);
+                    } catch (e) {
+                      console.warn('Could not store UTMs in sessionStorage');
+                    }
+                  }
+                }
+
+                // Wait for HubSpot to load, then send stored UTMs
+                function initUTMTracking() {
+                  if (typeof window.hbspt !== 'undefined') {
+                    try {
+                      const storedUTMs = sessionStorage.getItem('page_utm_params');
+                      if (storedUTMs) {
+                        const utmParams = JSON.parse(storedUTMs);
+                        console.log('📡 Sending stored UTMs to HubSpot:', utmParams);
+
+                        // Try hbspt.identify first
+                        if (window.hbspt.identify) {
+                          window.hbspt.identify(utmParams);
+                        } else if (window._hsq) {
+                          window._hsq.push(['identify', utmParams]);
+                        }
+                      }
+                    } catch (error) {
+                      console.warn('Error sending UTMs to HubSpot:', error);
+                    }
+                  } else {
+                    setTimeout(initUTMTracking, 500);
+                  }
+                }
+
+                // Capture UTMs immediately
+                captureUTMsOnPageLoad();
+
+                // Start trying to initialize UTM tracking
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', initUTMTracking);
+                } else {
+                  setTimeout(initUTMTracking, 1000); // Give HubSpot time to load
+                }
+              })();
+            `,
+          }}
         />
       </body>
     </html>

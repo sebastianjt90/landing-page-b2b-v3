@@ -180,8 +180,8 @@ const createVariantsWithTransition = (
 ): Variants => {
   if (!transition) return baseVariants;
 
-  const { exit, ...mainTransition } = transition;
-  // exit is destructured but handled separately below
+  const { exit: _exit, ...mainTransition } = transition;
+  // exit is destructured but not used in this function
 
   return {
     ...baseVariants,

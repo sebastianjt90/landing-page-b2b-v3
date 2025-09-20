@@ -1,0 +1,45 @@
+# LaHaus AI Robots.txt
+# https://lahaus.ai
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://lahaus.ai/sitemap.xml
+
+# Crawl-delay for responsible crawling
+Crawl-delay: 1
+
+# Block development/staging URLs
+Disallow: /*.json$
+Disallow: /api/
+Disallow: /_next/
+Disallow: /404
+
+# Allow important assets
+Allow: /favicon.ico
+Allow: /*.css
+Allow: /*.js
+Allow: /images/
+
+# Major search engines
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Block bad bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
