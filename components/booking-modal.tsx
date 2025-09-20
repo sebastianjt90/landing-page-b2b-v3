@@ -339,7 +339,7 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                                             console.log(`📧 Found email in iframe: ${contactEmail}`)
                                         }
                                     }
-                                } catch (error) {
+                                } catch (_error) {
                                     console.log('⚠️ Could not access iframe content (CORS restriction)')
                                 }
                             }
@@ -404,14 +404,14 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                                                 } else {
                                                     console.log('ℹ️ LEVEL 3: Post-booking correction not needed or failed:', correctionResult.message || correctionResult.error)
                                                 }
-                                            } catch (error) {
+                                            } catch (_error) {
                                                 console.error('❌ LEVEL 3: Post-booking correction error:', error)
                                             }
                                         }, 5000) // Wait 5 seconds for HubSpot to process the contact
                                     } else {
                                         console.error('❌ Attribution API error:', result.error)
                                     }
-                                } catch (error) {
+                                } catch (_error) {
                                     console.error('❌ Network error sending attribution:', error)
                                 }
                             } else {
@@ -480,14 +480,14 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                                                     } else {
                                                         console.log('ℹ️ LEVEL 3 FALLBACK: Post-booking correction not needed:', correctionResult.message || correctionResult.error)
                                                     }
-                                                } catch (error) {
+                                                } catch (_error) {
                                                     console.error('❌ LEVEL 3 FALLBACK: Post-booking correction error:', error)
                                                 }
                                             }, 5000)
                                         } else {
                                             console.error('❌ FALLBACK: Attribution API error:', result.error)
                                         }
-                                    } catch (error) {
+                                    } catch (_error) {
                                         console.error('❌ FALLBACK: Network error sending attribution:', error)
                                     }
                                 } else {
@@ -596,7 +596,7 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                                             if (correctionResult.success) {
                                                 console.log('✅ LEVEL 3 INTERACTION: Post-booking correction completed!')
                                             }
-                                        } catch (error) {
+                                        } catch (_error) {
                                             console.error('❌ LEVEL 3 INTERACTION: Post-booking correction error:', error)
                                         }
                                     }, 5000)
@@ -604,7 +604,7 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                                     console.error('❌ Attribution API error via interaction:', result.error)
                                 }
                             }
-                        } catch (error) {
+                        } catch (_error) {
                             console.error('❌ Error in interaction attribution:', error)
                         }
                     }, 10000) // Wait 10 seconds after last interaction
@@ -677,7 +677,7 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                                         if (correctionResult.success) {
                                             console.log('✅ LEVEL 3 TIME-FALLBACK: Post-booking correction completed!')
                                         }
-                                    } catch (error) {
+                                    } catch (_error) {
                                         console.error('❌ LEVEL 3 TIME-FALLBACK: Post-booking correction error:', error)
                                     }
                                 }, 5000)

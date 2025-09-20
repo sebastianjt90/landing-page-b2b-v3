@@ -203,7 +203,7 @@ async function getContactFromHubSpot(email: string, apiKey: string) {
 /**
  * Check if attribution correction is needed
  */
-function checkIfCorrectionNeeded(properties: ContactProperties, forceCorrection = false): boolean {
+function checkIfCorrectionNeeded(properties: Record<string, string | undefined>, forceCorrection = false): boolean {
   if (forceCorrection) return true
 
   // Check for "direct traffic" indicators that need correction

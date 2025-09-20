@@ -298,7 +298,7 @@ async function applyWebhookAttributionCorrection(
     sessionId: string
     timestamp: string
   },
-  contactId: string
+  _contactId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
     console.log('🔧 WEBHOOK: Applying attribution correction via internal API...')
