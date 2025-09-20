@@ -180,7 +180,8 @@ const createVariantsWithTransition = (
 ): Variants => {
   if (!transition) return baseVariants;
 
-  const { exit: _exit, ...mainTransition } = transition;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { exit, ...mainTransition } = transition;
   // exit is destructured but not used in this function
 
   return {
