@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
-import { buildMeetingUrlWithCurrentParams } from '@/lib/utm-utils'
 import { useAttribution } from '@/hooks/use-attribution'
 
 interface VSLBookingModalProps {
@@ -13,18 +12,61 @@ interface VSLBookingModalProps {
 export function VSLBookingModal({ isOpen, onClose }: VSLBookingModalProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [meetingUrl, setMeetingUrl] = useState<string>('')
+  const [iframeId] = useState(() => `vsl-hubspot-meetings-iframe-${Date.now()}`)
   const { utmParams, landingPage, referrer, updateTouch } = useAttribution()
 
+  // Function to build iframe URL with UTMs (same logic as BookingModal)
+  const buildIframeSrcWithUTMs = (baseUrl: string) => {
+    console.log('🔧 VSL: Building iframe URL with UTMs...')
+
+    try {
+      const url = new URL(baseUrl)
+
+      // Add UTM parameters if they exist
+      Object.entries(utmParams).forEach(([key, value]) => {
+        if (value && typeof value === 'string') {
+          url.searchParams.set(key, value)
+          console.log(`✅ VSL: Added ${key}=${value} to iframe URL`)
+        }
+      })
+
+      const finalUrl = url.toString()
+      console.log('🎯 VSL: Final iframe URL with UTMs:', finalUrl)
+      return finalUrl
+    } catch (error) {
+      console.error('❌ VSL: Error building iframe URL:', error)
+      return baseUrl
+    }
+  }
+
   useEffect(() => {
-    // Prevent scroll when modal is open and build meeting URL with UTMs
+    // Prevent scroll when modal is open and setup iframe dynamically with UTMs
     if (isOpen) {
       document.body.style.overflow = 'hidden'
       setIsLoading(true)
 
-      // Build meeting URL with UTM parameters
-      const baseUrl = 'https://meetings.hubspot.com/sebastian-jimenez-trujillo/vsl-demo?embed=true'
-      const urlWithUtms = buildMeetingUrlWithCurrentParams(baseUrl)
-      setMeetingUrl(urlWithUtms)
+      // Wait for iframe to be rendered, then dynamically set its src with UTMs
+      setTimeout(() => {
+        const iframe = document.getElementById(iframeId) as HTMLIFrameElement
+
+        if (iframe) {
+          const baseUrl = 'https://meetings.hubspot.com/sebastian-jimenez-trujillo/vsl-demo?embed=true'
+
+          // Check if we have UTM parameters to add
+          if (Object.keys(utmParams).some(key => utmParams[key as keyof typeof utmParams])) {
+            const urlWithUtms = buildIframeSrcWithUTMs(baseUrl)
+            iframe.src = urlWithUtms
+            setMeetingUrl(urlWithUtms)
+            console.log('🎯 VSL: IFRAME SRC SET WITH UTMs:', urlWithUtms)
+          } else {
+            iframe.src = baseUrl
+            setMeetingUrl(baseUrl)
+            console.log('📝 VSL: IFRAME SRC SET (no UTMs):', baseUrl)
+          }
+        } else {
+          console.warn('⚠️ VSL: Iframe not found with ID:', iframeId)
+        }
+      }, 200) // Wait for DOM to render
 
       // Set up meeting booking listener for VSL modal
       const handleVSLMeetingBooked = async (event: MessageEvent) => {
@@ -165,8 +207,8 @@ export function VSLBookingModal({ isOpen, onClose }: VSLBookingModalProps) {
       if (process.env.NODE_ENV === 'development') {
         console.log('🚀 VSL BOOKING MODAL DEBUG SUMMARY:')
         console.log('📊 UTM Parameters:', utmParams)
-        console.log('🔗 VSL Meeting URL with UTMs (fallback):', urlWithUtms)
-        console.log('📅 VSL Meeting iframe will load next')
+        console.log('🔗 VSL Meeting URL will be set dynamically:', meetingUrl)
+        console.log('📅 VSL Meeting iframe loading with dynamic UTM injection...')
       }
     } else {
       document.body.style.overflow = 'unset'
@@ -267,8 +309,9 @@ export function VSLBookingModal({ isOpen, onClose }: VSLBookingModalProps) {
           overflow: 'hidden'
         }}>
           <iframe
-            key={meetingUrl} // Forzar recreación del iframe cuando cambia la URL
-            src={meetingUrl || 'https://meetings.hubspot.com/sebastian-jimenez-trujillo/vsl-demo?embed=true'}
+            id={iframeId}
+            key={`vsl-${iframeId}`} // Use dynamic iframe ID for re-creation
+            // src will be set dynamically via JavaScript with UTMs
             width="100%"
             height="100%"
             frameBorder="0"

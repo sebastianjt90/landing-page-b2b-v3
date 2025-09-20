@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { translations } from '@/lib/translations'
-import { buildMeetingUrlWithCurrentParams } from '@/lib/utm-utils'
 import { useAttribution } from '@/hooks/use-attribution'
 
 // Global function type declaration
@@ -107,30 +106,62 @@ async function attemptAttributionCapture(
 export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalProps) {
     const [isLoading, setIsLoading] = useState(true)
     const [meetingUrl, setMeetingUrl] = useState<string>('')
+    const [iframeId] = useState(() => `hubspot-meetings-iframe-${Date.now()}`)
     const { utmParams, landingPage, referrer, updateTouch } = useAttribution()
     const t = translations[locale as keyof typeof translations] || translations.es
 
+    // Function to build iframe URL with UTMs (adapted from your research)
+    const buildIframeSrcWithUTMs = (baseUrl: string) => {
+        console.log('🔧 Building iframe URL with UTMs...')
+
+        try {
+            const url = new URL(baseUrl)
+
+            // Add UTM parameters if they exist
+            Object.entries(utmParams).forEach(([key, value]) => {
+                if (value && typeof value === 'string') {
+                    url.searchParams.set(key, value)
+                    console.log(`✅ Added ${key}=${value} to iframe URL`)
+                }
+            })
+
+            const finalUrl = url.toString()
+            console.log('🎯 Final iframe URL with UTMs:', finalUrl)
+            return finalUrl
+        } catch (error) {
+            console.error('❌ Error building iframe URL:', error)
+            return baseUrl
+        }
+    }
+
     useEffect(() => {
-        // Prevent scroll when modal is open and build meeting URL with UTMs
+        // Prevent scroll when modal is open and setup iframe dynamically with UTMs
         if (isOpen) {
             document.body.style.overflow = 'hidden'
             setIsLoading(true)
 
-            // Step 1: Build meeting URL with UTM parameters using global function
-            const baseUrl = t.booking.meetingUrl
-            let urlWithUtms = baseUrl
+            // Step 1: Wait for iframe to be rendered, then dynamically set its src with UTMs
+            setTimeout(() => {
+                const iframe = document.getElementById(iframeId) as HTMLIFrameElement
 
-            // Use the global HubSpot meeting URL builder if available
-            if (typeof window.buildHubSpotMeetingURL === 'function') {
-                urlWithUtms = window.buildHubSpotMeetingURL(baseUrl)
-                console.log('🌐 Using global HubSpot meeting URL builder')
-            } else {
-                // Fallback to original method
-                urlWithUtms = buildMeetingUrlWithCurrentParams(baseUrl)
-                console.log('🔄 Using fallback meeting URL builder')
-            }
+                if (iframe) {
+                    const baseUrl = t.booking.meetingUrl
 
-            setMeetingUrl(urlWithUtms)
+                    // Check if we have UTM parameters to add
+                    if (Object.keys(utmParams).some(key => utmParams[key as keyof typeof utmParams])) {
+                        const urlWithUtms = buildIframeSrcWithUTMs(baseUrl)
+                        iframe.src = urlWithUtms
+                        setMeetingUrl(urlWithUtms)
+                        console.log('🎯 IFRAME SRC SET WITH UTMs:', urlWithUtms)
+                    } else {
+                        iframe.src = baseUrl
+                        setMeetingUrl(baseUrl)
+                        console.log('📝 IFRAME SRC SET (no UTMs):', baseUrl)
+                    }
+                } else {
+                    console.warn('⚠️ Iframe not found with ID:', iframeId)
+                }
+            }, 200) // Wait for DOM to render
 
             // Step 2: Set up HubSpot meeting event listener for when booking actually happens
             const handleMeetingBooked = (event: MessageEvent) => {
@@ -441,8 +472,8 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
             console.log('📊 UTM Parameters:', utmParams)
             console.log('🌐 Landing Page:', landingPage)
             console.log('🔗 Referrer:', referrer)
-            console.log('🔗 Meeting URL with UTMs:', urlWithUtms)
-            console.log('📅 Meeting iframe loading... Multiple detection methods active')
+            console.log('🔗 Meeting URL will be set dynamically:', meetingUrl)
+            console.log('📅 Meeting iframe loading with dynamic UTM injection...')
 
             // Cleanup function
             return () => {
@@ -516,8 +547,9 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                     overflow: 'hidden'
                 }}>
                     <iframe
-                        key={`${locale}-${meetingUrl}`} // Forzar recreación del iframe cuando cambia el idioma o URL
-                        src={meetingUrl || t.booking.meetingUrl}
+                        id={iframeId}
+                        key={`${locale}-${iframeId}`} // Use dynamic iframe ID for re-creation
+                        // src will be set dynamically via JavaScript with UTMs
                         width="100%"
                         height="100%"
                         frameBorder="0"
