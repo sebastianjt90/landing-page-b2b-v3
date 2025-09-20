@@ -146,3 +146,85 @@ export function hasTrackingParams(): boolean {
   const params = captureTrackingParams()
   return Object.keys(params).length > 0
 }
+
+/**
+ * Sends UTM tracking parameters directly to HubSpot tracking
+ * Uses HubSpot's identify API to associate UTMs with the current visitor
+ */
+export function sendUTMsToHubSpot(params: TrackingParams): boolean {
+  if (typeof window === 'undefined') {
+    console.log('🚫 HubSpot Tracking: Running on server side')
+    return false
+  }
+
+  // Check if we have parameters to send
+  const hasParams = Object.keys(params).length > 0
+  if (!hasParams) {
+    console.log('📭 HubSpot Tracking: No UTM parameters to send')
+    return false
+  }
+
+  let trackingSent = false
+
+  try {
+    // Method 1: Use HubSpot tracking API (hbspt.identify)
+    if (window.hbspt && window.hbspt.identify) {
+      console.log('📡 Sending UTMs to HubSpot via hbspt.identify:', params)
+      window.hbspt.identify(params)
+      trackingSent = true
+    }
+    // Method 2: Use HubSpot queue (_hsq) as fallback
+    else if (window._hsq) {
+      console.log('📡 Sending UTMs to HubSpot via _hsq queue:', params)
+      window._hsq.push(['identify', params])
+      trackingSent = true
+    }
+    // Method 3: Use HubSpot forms API if available
+    else if (window.hbspt && window.hbspt.forms) {
+      console.log('📡 HubSpot forms API available, but no direct identify method')
+      // We could potentially use forms.getForm() and set hidden field values
+      // But this is more complex and method 1 & 2 should work
+    }
+    else {
+      console.warn('⚠️ HubSpot tracking not available. Ensure HubSpot script is loaded.')
+      console.log('Available objects:', {
+        hbspt: typeof window.hbspt,
+        _hsq: typeof window._hsq,
+        hbspt_identify: window.hbspt?.identify ? 'available' : 'not available'
+      })
+    }
+
+    if (trackingSent) {
+      console.log('✅ UTM tracking sent to HubSpot successfully')
+    }
+
+    return trackingSent
+
+  } catch (error) {
+    console.error('❌ Error sending UTMs to HubSpot:', error)
+    return false
+  }
+}
+
+/**
+ * Captures current UTMs and sends them to HubSpot tracking
+ * Combines capture + send in one convenient function
+ */
+export function captureAndSendUTMsToHubSpot(): boolean {
+  const trackingParams = captureTrackingParams()
+
+  if (process.env.NODE_ENV === 'development') {
+    console.group('🎯 Capture & Send UTMs to HubSpot')
+    console.log('📊 Captured Parameters:', trackingParams)
+    console.log('📊 Formatted:', formatTrackingParamsForLog(trackingParams))
+  }
+
+  const success = sendUTMsToHubSpot(trackingParams)
+
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`${success ? '✅' : '❌'} HubSpot tracking ${success ? 'successful' : 'failed'}`)
+    console.groupEnd()
+  }
+
+  return success
+}

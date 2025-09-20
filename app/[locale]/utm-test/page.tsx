@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { BookingModal } from '@/components/booking-modal'
-import { debugUTMCapture, captureTrackingParams, buildMeetingUrlWithCurrentParams } from '@/lib/utm-utils'
+import { debugUTMCapture, captureTrackingParams, buildMeetingUrlWithCurrentParams, captureAndSendUTMsToHubSpot } from '@/lib/utm-utils'
 import { translations } from '@/lib/translations'
 
 export default function UTMTestPage({ params }: { params: { locale: string } }) {
@@ -25,6 +25,11 @@ export default function UTMTestPage({ params }: { params: { locale: string } }) 
     // Show current tracking params
     const trackingParams = captureTrackingParams()
     console.log('📊 Current Tracking Params Object:', trackingParams)
+
+    // Test HubSpot tracking
+    console.log('🎯 Testing HubSpot Tracking...')
+    const trackingSent = captureAndSendUTMsToHubSpot()
+    console.log(`📡 HubSpot Tracking Result: ${trackingSent ? 'SUCCESS ✅' : 'FAILED ❌'}`)
   }
 
   return (

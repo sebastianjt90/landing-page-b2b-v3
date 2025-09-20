@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { translations } from '@/lib/translations'
-import { buildMeetingUrlWithCurrentParams, captureTrackingParams, formatTrackingParamsForLog, debugUTMCapture } from '@/lib/utm-utils'
+import { buildMeetingUrlWithCurrentParams, captureTrackingParams, formatTrackingParamsForLog, debugUTMCapture, captureAndSendUTMsToHubSpot } from '@/lib/utm-utils'
 
 interface BookingModalProps {
     isOpen: boolean
@@ -22,17 +22,22 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
             document.body.style.overflow = 'hidden'
             setIsLoading(true)
 
-            // Build meeting URL with current UTM parameters
+            // Step 1: Send UTMs directly to HubSpot tracking FIRST
+            console.log('🎯 BOOKING MODAL OPENED - Sending UTMs to HubSpot')
+            const trackingSent = captureAndSendUTMsToHubSpot()
+
+            // Step 2: Build meeting URL with UTM parameters (as backup/fallback)
             const baseUrl = t.booking.meetingUrl
             const urlWithUtms = buildMeetingUrlWithCurrentParams(baseUrl)
             setMeetingUrl(urlWithUtms)
 
             // Log tracking parameters for debugging (only in development)
             if (process.env.NODE_ENV === 'development') {
-                console.log('🚀 BOOKING MODAL OPENED - Starting UTM Debug')
+                console.log('🚀 BOOKING MODAL DEBUG SUMMARY:')
+                console.log(`📡 HubSpot Tracking Sent: ${trackingSent ? '✅ YES' : '❌ NO'}`)
                 debugUTMCapture()
-                console.log('🔗 Final Meeting URL with UTMs:', urlWithUtms)
-                console.log('📅 Meeting URL will be loaded in iframe')
+                console.log('🔗 Meeting URL with UTMs (fallback):', urlWithUtms)
+                console.log('📅 Meeting iframe will load next')
             }
         } else {
             document.body.style.overflow = 'unset'
