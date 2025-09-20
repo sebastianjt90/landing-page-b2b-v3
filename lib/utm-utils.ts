@@ -245,8 +245,10 @@ export function sendUTMsToHubSpot(params: TrackingParams): boolean {
     }
 
     // Method 4: Use HubSpot Analytics API if available
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((window as any).hsq) {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (window as any).hsq.push(['setAttributionParams', params])
         console.log('📡 Sent UTMs via HubSpot Analytics API')
         trackingSent = true
