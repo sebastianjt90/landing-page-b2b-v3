@@ -108,6 +108,38 @@ export function formatTrackingParamsForLog(params: TrackingParams): string {
 }
 
 /**
+ * Logs comprehensive debugging information about UTM capture
+ */
+export function debugUTMCapture(): void {
+  if (typeof window === 'undefined') {
+    console.log('🚫 UTM Debug: Running on server side')
+    return
+  }
+
+  console.group('🔍 UTM Capture Debug Information')
+
+  // Current URL
+  console.log('📍 Current URL:', window.location.href)
+  console.log('📍 Search Params:', window.location.search)
+
+  // URL Parameters
+  const params = new URLSearchParams(window.location.search)
+  console.log('📋 All URL Parameters:', Object.fromEntries(params.entries()))
+
+  // Captured tracking parameters
+  const trackingParams = captureTrackingParams()
+  console.log('🎯 Captured Tracking Parameters:', trackingParams)
+  console.log('📊 Formatted for Log:', formatTrackingParamsForLog(trackingParams))
+
+  // Build example meeting URL
+  const exampleBaseUrl = 'https://meetings.hubspot.com/sebastian-jimenez-trujillo/lahausai-demo?embed=true&lang=es'
+  const finalUrl = buildMeetingUrl(exampleBaseUrl, trackingParams)
+  console.log('🔗 Example Meeting URL with UTMs:', finalUrl)
+
+  console.groupEnd()
+}
+
+/**
  * Checks if the current page has any tracking parameters
  */
 export function hasTrackingParams(): boolean {

@@ -1,34 +1,44 @@
 # Test UTM Tracking Implementation
 
 ## 🚀 Server Running
-- **Local**: http://localhost:3001
-- **Network**: http://192.168.100.30:3001
+- **Local**: http://localhost:3000
+- **Network**: http://192.168.100.30:3000
+
+## 🧪 **NEW: Dedicated Test Page**
+```
+http://localhost:3000/es/utm-test?utm_source=test&utm_medium=debug&utm_campaign=utm_testing&utm_content=test_page
+```
 
 ## 🔗 Test URLs with UTMs
 
 ### Test 1: Instagram VSL Campaign (Mexico)
 ```
-http://localhost:3001/es/vsl?utm_source=instagram&utm_medium=rrss&utm_campaign=vsl_spanish_mx&utm_content=story_link
+http://localhost:3000/es/vsl?utm_source=instagram&utm_medium=rrss&utm_campaign=vsl_spanish_mx&utm_content=story_link
 ```
 
 ### Test 2: Instagram Bio Link (Colombia)
 ```
-http://localhost:3001/es?utm_source=instagram&utm_medium=rrss&utm_campaign=landing_bio_link&utm_content=col
+http://localhost:3000/es?utm_source=instagram&utm_medium=rrss&utm_campaign=landing_bio_link&utm_content=col
 ```
 
 ### Test 3: LinkedIn Organic
 ```
-http://localhost:3001/es?utm_source=social-media&utm_medium=linkedin&utm_campaign=organic&utm_content=post_share
+http://localhost:3000/es?utm_source=social-media&utm_medium=linkedin&utm_campaign=organic&utm_content=post_share
 ```
 
 ### Test 4: Google Ads with GCLID
 ```
-http://localhost:3001/es?utm_source=google&utm_medium=cpc&utm_campaign=search_brand&gclid=ABC123XYZ
+http://localhost:3000/es?utm_source=google&utm_medium=cpc&utm_campaign=search_brand&gclid=ABC123XYZ
 ```
 
 ### Test 5: Facebook Ads with FBCLID
 ```
-http://localhost:3001/es?utm_source=facebook&utm_medium=paid&utm_campaign=lookalike_audience&fbclid=FB789ABC&utm_content=video_ad
+http://localhost:3000/es?utm_source=facebook&utm_medium=paid&utm_campaign=lookalike_audience&fbclid=FB789ABC&utm_content=video_ad
+```
+
+### Test 6: UTM Test Page with Debug Parameters
+```
+http://localhost:3000/es/utm-test?utm_source=debug_test&utm_medium=manual_test&utm_campaign=troubleshooting&utm_content=console_debug&gclid=TESTGCLID123
 ```
 
 ## 📱 What to Test

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { translations } from '@/lib/translations'
-import { buildMeetingUrlWithCurrentParams, captureTrackingParams, formatTrackingParamsForLog } from '@/lib/utm-utils'
+import { buildMeetingUrlWithCurrentParams, captureTrackingParams, formatTrackingParamsForLog, debugUTMCapture } from '@/lib/utm-utils'
 
 interface BookingModalProps {
     isOpen: boolean
@@ -29,9 +29,10 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
 
             // Log tracking parameters for debugging (only in development)
             if (process.env.NODE_ENV === 'development') {
-                const trackingParams = captureTrackingParams()
-                console.log('📊 Booking Modal - UTM Parameters:', formatTrackingParamsForLog(trackingParams))
-                console.log('🔗 Meeting URL with UTMs:', urlWithUtms)
+                console.log('🚀 BOOKING MODAL OPENED - Starting UTM Debug')
+                debugUTMCapture()
+                console.log('🔗 Final Meeting URL with UTMs:', urlWithUtms)
+                console.log('📅 Meeting URL will be loaded in iframe')
             }
         } else {
             document.body.style.overflow = 'unset'
