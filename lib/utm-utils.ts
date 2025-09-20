@@ -108,7 +108,7 @@ export function formatTrackingParamsForLog(params: TrackingParams): string {
 }
 
 /**
- * Logs comprehensive debugging information about UTM capture
+ * Logs comprehensive debugging information about UTM capture AND HubSpot availability
  */
 export function debugUTMCapture(): void {
   if (typeof window === 'undefined') {
@@ -136,6 +136,26 @@ export function debugUTMCapture(): void {
   const finalUrl = buildMeetingUrl(exampleBaseUrl, trackingParams)
   console.log('🔗 Example Meeting URL with UTMs:', finalUrl)
 
+  // NEW: HubSpot Availability Check
+  console.group('🔧 HubSpot Tracking Availability')
+  console.log('window.hbspt exists:', typeof window.hbspt !== 'undefined')
+  console.log('window.hbspt.identify exists:', window.hbspt?.identify ? 'YES' : 'NO')
+  console.log('window._hsq exists:', typeof window._hsq !== 'undefined')
+  console.log('window._hsq length:', window._hsq?.length || 'N/A')
+
+  // Check for HubSpot portal ID in scripts
+  const scripts = Array.from(document.getElementsByTagName('script'))
+  const hubspotScripts = scripts.filter(script => script.src.includes('hubspot') || script.src.includes('hs-scripts'))
+  console.log('HubSpot scripts found:', hubspotScripts.length)
+  hubspotScripts.forEach((script, index) => {
+    console.log(`  Script ${index + 1}:`, script.src)
+  })
+
+  // Check for HubSpot portal ID in the page
+  const portalMatch = document.documentElement.innerHTML.match(/portalId['"]\s*:\s*['"]*(\d+)/i)
+  console.log('HubSpot Portal ID found:', portalMatch ? portalMatch[1] : 'Not found')
+
+  console.groupEnd()
   console.groupEnd()
 }
 
@@ -145,6 +165,38 @@ export function debugUTMCapture(): void {
 export function hasTrackingParams(): boolean {
   const params = captureTrackingParams()
   return Object.keys(params).length > 0
+}
+
+/**
+ * Waits for HubSpot tracking API to be available
+ */
+export function waitForHubSpotAPI(maxAttempts: number = 20, delay: number = 500): Promise<boolean> {
+  return new Promise((resolve) => {
+    let attempts = 0
+
+    const checkHubSpot = () => {
+      attempts++
+
+      // Check if HubSpot API is available
+      if (window.hbspt && window.hbspt.identify) {
+        console.log(`✅ HubSpot API available after ${attempts} attempts`)
+        resolve(true)
+        return
+      }
+
+      // Check if we've exceeded max attempts
+      if (attempts >= maxAttempts) {
+        console.warn(`⚠️ HubSpot API not available after ${maxAttempts} attempts`)
+        resolve(false)
+        return
+      }
+
+      // Try again after delay
+      setTimeout(checkHubSpot, delay)
+    }
+
+    checkHubSpot()
+  })
 }
 
 /**
@@ -207,6 +259,34 @@ export function sendUTMsToHubSpot(params: TrackingParams): boolean {
 }
 
 /**
+ * Sends UTM tracking parameters to HubSpot with retry mechanism
+ * Waits for HubSpot API to be available before sending
+ */
+export async function sendUTMsToHubSpotWithRetry(params: TrackingParams): Promise<boolean> {
+  if (typeof window === 'undefined') {
+    console.log('🚫 HubSpot Tracking: Running on server side')
+    return false
+  }
+
+  // Check if we have parameters to send
+  const hasParams = Object.keys(params).length > 0
+  if (!hasParams) {
+    console.log('📭 HubSpot Tracking: No UTM parameters to send')
+    return false
+  }
+
+  console.log('🔄 Waiting for HubSpot API to be available...')
+  const hubspotAvailable = await waitForHubSpotAPI()
+
+  if (!hubspotAvailable) {
+    console.warn('⚠️ HubSpot API not available, trying fallback methods')
+    return sendUTMsToHubSpot(params)
+  }
+
+  return sendUTMsToHubSpot(params)
+}
+
+/**
  * Captures current UTMs and sends them to HubSpot tracking
  * Combines capture + send in one convenient function
  */
@@ -220,6 +300,29 @@ export function captureAndSendUTMsToHubSpot(): boolean {
   }
 
   const success = sendUTMsToHubSpot(trackingParams)
+
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`${success ? '✅' : '❌'} HubSpot tracking ${success ? 'successful' : 'failed'}`)
+    console.groupEnd()
+  }
+
+  return success
+}
+
+/**
+ * Captures current UTMs and sends them to HubSpot tracking with retry mechanism
+ * Async version that waits for HubSpot API to be available
+ */
+export async function captureAndSendUTMsToHubSpotAsync(): Promise<boolean> {
+  const trackingParams = captureTrackingParams()
+
+  if (process.env.NODE_ENV === 'development') {
+    console.group('🎯 Capture & Send UTMs to HubSpot (Async with Retry)')
+    console.log('📊 Captured Parameters:', trackingParams)
+    console.log('📊 Formatted:', formatTrackingParamsForLog(trackingParams))
+  }
+
+  const success = await sendUTMsToHubSpotWithRetry(trackingParams)
 
   if (process.env.NODE_ENV === 'development') {
     console.log(`${success ? '✅' : '❌'} HubSpot tracking ${success ? 'successful' : 'failed'}`)

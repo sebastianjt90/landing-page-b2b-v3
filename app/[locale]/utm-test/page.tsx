@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { BookingModal } from '@/components/booking-modal'
-import { debugUTMCapture, captureTrackingParams, buildMeetingUrlWithCurrentParams, captureAndSendUTMsToHubSpot } from '@/lib/utm-utils'
+import { debugUTMCapture, captureTrackingParams, buildMeetingUrlWithCurrentParams, captureAndSendUTMsToHubSpot, captureAndSendUTMsToHubSpotAsync } from '@/lib/utm-utils'
 import { translations } from '@/lib/translations'
 
 export default function UTMTestPage({ params }: { params: { locale: string } }) {
@@ -26,10 +26,23 @@ export default function UTMTestPage({ params }: { params: { locale: string } }) 
     const trackingParams = captureTrackingParams()
     console.log('📊 Current Tracking Params Object:', trackingParams)
 
-    // Test HubSpot tracking
-    console.log('🎯 Testing HubSpot Tracking...')
+    // Test HubSpot tracking with delay (in case script is still loading)
+    console.log('🎯 Testing HubSpot Tracking (Sync)...')
     const trackingSent = captureAndSendUTMsToHubSpot()
-    console.log(`📡 HubSpot Tracking Result: ${trackingSent ? 'SUCCESS ✅' : 'FAILED ❌'}`)
+    console.log(`📡 HubSpot Tracking Result (Sync): ${trackingSent ? 'SUCCESS ✅' : 'FAILED ❌'}`)
+
+    // Try async version with polling
+    console.log('🎯 Testing HubSpot Tracking (Async with Polling)...')
+    captureAndSendUTMsToHubSpotAsync().then(asyncResult => {
+      console.log(`📡 HubSpot Tracking Result (Async): ${asyncResult ? 'SUCCESS ✅' : 'FAILED ❌'}`)
+    })
+
+    // Legacy retry after delay
+    setTimeout(() => {
+      console.log('🔄 Retrying HubSpot tracking after 3 seconds (Legacy)...')
+      const retryResult = captureAndSendUTMsToHubSpot()
+      console.log(`📡 Retry Result (Legacy): ${retryResult ? 'SUCCESS ✅' : 'FAILED ❌'}`)
+    }, 3000)
   }
 
   return (

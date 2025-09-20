@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { translations } from '@/lib/translations'
-import { buildMeetingUrlWithCurrentParams, captureTrackingParams, formatTrackingParamsForLog, debugUTMCapture, captureAndSendUTMsToHubSpot } from '@/lib/utm-utils'
+import { buildMeetingUrlWithCurrentParams, captureTrackingParams, formatTrackingParamsForLog, debugUTMCapture, captureAndSendUTMsToHubSpotAsync } from '@/lib/utm-utils'
 
 interface BookingModalProps {
     isOpen: boolean
@@ -22,9 +22,11 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
             document.body.style.overflow = 'hidden'
             setIsLoading(true)
 
-            // Step 1: Send UTMs directly to HubSpot tracking FIRST
+            // Step 1: Send UTMs directly to HubSpot tracking FIRST (async with retry)
             console.log('🎯 BOOKING MODAL OPENED - Sending UTMs to HubSpot')
-            const trackingSent = captureAndSendUTMsToHubSpot()
+            captureAndSendUTMsToHubSpotAsync().then(trackingSent => {
+                console.log(`📡 Async HubSpot Tracking Result: ${trackingSent ? 'SUCCESS ✅' : 'FAILED ❌'}`)
+            })
 
             // Step 2: Build meeting URL with UTM parameters (as backup/fallback)
             const baseUrl = t.booking.meetingUrl
@@ -33,8 +35,9 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
 
             // Log tracking parameters for debugging (only in development)
             if (process.env.NODE_ENV === 'development') {
+                const trackingParams = captureTrackingParams()
                 console.log('🚀 BOOKING MODAL DEBUG SUMMARY:')
-                console.log(`📡 HubSpot Tracking Sent: ${trackingSent ? '✅ YES' : '❌ NO'}`)
+                console.log('📊 UTM Parameters:', formatTrackingParamsForLog(trackingParams))
                 debugUTMCapture()
                 console.log('🔗 Meeting URL with UTMs (fallback):', urlWithUtms)
                 console.log('📅 Meeting iframe will load next')

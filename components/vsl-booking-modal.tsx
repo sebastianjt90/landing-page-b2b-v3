@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
-import { buildMeetingUrlWithCurrentParams, captureTrackingParams, formatTrackingParamsForLog, captureAndSendUTMsToHubSpot } from '@/lib/utm-utils'
+import { buildMeetingUrlWithCurrentParams, captureTrackingParams, formatTrackingParamsForLog, captureAndSendUTMsToHubSpotAsync } from '@/lib/utm-utils'
 
 interface VSLBookingModalProps {
   isOpen: boolean
@@ -19,9 +19,11 @@ export function VSLBookingModal({ isOpen, onClose }: VSLBookingModalProps) {
       document.body.style.overflow = 'hidden'
       setIsLoading(true)
 
-      // Step 1: Send UTMs directly to HubSpot tracking FIRST
+      // Step 1: Send UTMs directly to HubSpot tracking FIRST (async with retry)
       console.log('🎯 VSL BOOKING MODAL OPENED - Sending UTMs to HubSpot')
-      const trackingSent = captureAndSendUTMsToHubSpot()
+      captureAndSendUTMsToHubSpotAsync().then(trackingSent => {
+        console.log(`📡 VSL Async HubSpot Tracking Result: ${trackingSent ? 'SUCCESS ✅' : 'FAILED ❌'}`)
+      })
 
       // Step 2: Build meeting URL with UTM parameters (as backup/fallback)
       const baseUrl = 'https://meetings.hubspot.com/sebastian-jimenez-trujillo/vsl-demo?embed=true'
@@ -32,7 +34,6 @@ export function VSLBookingModal({ isOpen, onClose }: VSLBookingModalProps) {
       if (process.env.NODE_ENV === 'development') {
         const trackingParams = captureTrackingParams()
         console.log('🚀 VSL BOOKING MODAL DEBUG SUMMARY:')
-        console.log(`📡 HubSpot Tracking Sent: ${trackingSent ? '✅ YES' : '❌ NO'}`)
         console.log('📊 UTM Parameters:', formatTrackingParamsForLog(trackingParams))
         console.log('🔗 VSL Meeting URL with UTMs (fallback):', urlWithUtms)
         console.log('📅 VSL Meeting iframe will load next')
