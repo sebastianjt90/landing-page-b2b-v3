@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { buildMeetingUrlWithCurrentParams, captureTrackingParams, formatTrackingParamsForLog, captureAndSendUTMsToHubSpotAsync } from '@/lib/utm-utils'
+import { useAttribution } from '@/hooks/use-attribution'
 
 interface VSLBookingModalProps {
   isOpen: boolean
@@ -12,6 +13,7 @@ interface VSLBookingModalProps {
 export function VSLBookingModal({ isOpen, onClose }: VSLBookingModalProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [meetingUrl, setMeetingUrl] = useState<string>('')
+  const { utmParams, landingPage, referrer, updateTouch } = useAttribution()
 
   useEffect(() => {
     // Prevent scroll when modal is open and build meeting URL with UTMs
@@ -19,16 +21,105 @@ export function VSLBookingModal({ isOpen, onClose }: VSLBookingModalProps) {
       document.body.style.overflow = 'hidden'
       setIsLoading(true)
 
-      // Step 1: Send UTMs directly to HubSpot tracking FIRST (async with retry)
-      console.log('🎯 VSL BOOKING MODAL OPENED - Sending UTMs to HubSpot')
-      captureAndSendUTMsToHubSpotAsync().then(trackingSent => {
-        console.log(`📡 VSL Async HubSpot Tracking Result: ${trackingSent ? 'SUCCESS ✅' : 'FAILED ❌'}`)
-      })
-
-      // Step 2: Build meeting URL with UTM parameters (as backup/fallback)
+      // Build meeting URL with UTM parameters
       const baseUrl = 'https://meetings.hubspot.com/sebastian-jimenez-trujillo/vsl-demo?embed=true'
       const urlWithUtms = buildMeetingUrlWithCurrentParams(baseUrl)
       setMeetingUrl(urlWithUtms)
+
+      // Set up meeting booking listener for VSL modal
+      const handleVSLMeetingBooked = async (event: MessageEvent) => {
+        // Check if this is a HubSpot meeting message
+        if (event.origin.includes('hubspot.com') || event.origin.includes('hs-sites.com')) {
+          const data = event.data
+
+          // HubSpot sends different event types - we want meeting bookings
+          if (data && (data.type === 'hsFormCallback' || data.eventName === 'onFormSubmitted' || data.type === 'MEETING_BOOKED')) {
+            console.log('🎯 VSL MEETING BOOKING DETECTED - Using NEW attribution system')
+
+            // Update touchpoint
+            updateTouch()
+
+            // Try to extract email and send attribution
+            setTimeout(async () => {
+              console.log('🔍 VSL: Attempting to extract email from meeting booking...')
+
+              let emailFound = false
+              let contactEmail = ''
+
+              // Try to get email from HubSpot data or forms
+              if (data && data.email) {
+                contactEmail = data.email
+                emailFound = true
+                console.log(`📧 VSL: Found email in HubSpot data: ${contactEmail}`)
+              } else {
+                // Try forms on page
+                const forms = document.querySelectorAll('form')
+                forms.forEach(form => {
+                  const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement
+                  if (emailInput && emailInput.value) {
+                    contactEmail = emailInput.value
+                    emailFound = true
+                    console.log(`📧 VSL: Found email in form: ${contactEmail}`)
+                  }
+                })
+              }
+
+              // Send attribution to our new API
+              if (emailFound && contactEmail) {
+                console.log('🚀 VSL: Sending attribution data to new API...')
+                try {
+                  const response = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                      email: contactEmail,
+                      firstname: '', // Will be filled by HubSpot
+                      lastname: '',  // Will be filled by HubSpot
+                      utmParams,
+                      landingPage,
+                      referrer,
+                      isFirstTouch: false // VSL booking is usually not first touch
+                    })
+                  })
+
+                  const result = await response.json()
+                  if (result.success) {
+                    console.log('✅ VSL: Attribution sent successfully! Contact ID:', result.contactId)
+                  } else {
+                    console.error('❌ VSL: Attribution API error:', result.error)
+                  }
+                } catch (error) {
+                  console.error('❌ VSL: Network error sending attribution:', error)
+                }
+              } else {
+                console.log('⚠️ VSL: Could not extract email. Attribution not sent.')
+                // Log for manual tracking
+                console.log('📊 VSL: Meeting booked with UTM data (no email):', {
+                  utmParams,
+                  landingPage,
+                  referrer,
+                  timestamp: new Date().toISOString()
+                })
+              }
+            }, 3000)
+
+            // Log UTM parameters for debugging
+            console.log('📊 VSL: UTM Parameters captured:', utmParams)
+            console.log('🌐 VSL: Landing Page:', landingPage)
+            console.log('🔗 VSL: Referrer:', referrer)
+          }
+        }
+      }
+
+      // Add event listener for VSL meeting bookings
+      window.addEventListener('message', handleVSLMeetingBooked)
+
+      // Cleanup function
+      return () => {
+        window.removeEventListener('message', handleVSLMeetingBooked)
+      }
 
       // Log tracking parameters for debugging (only in development)
       if (process.env.NODE_ENV === 'development') {

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { translations } from '@/lib/translations'
 import { buildMeetingUrlWithCurrentParams, captureTrackingParams, formatTrackingParamsForLog, debugUTMCapture, captureAndSendUTMsToHubSpotAsync, scheduleDelayedAttribution } from '@/lib/utm-utils'
+import { useAttribution } from '@/hooks/use-attribution'
 
 // Global function type declaration
 declare global {
@@ -21,6 +22,7 @@ interface BookingModalProps {
 export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalProps) {
     const [isLoading, setIsLoading] = useState(true)
     const [meetingUrl, setMeetingUrl] = useState<string>('')
+    const { utmParams, landingPage, referrer, updateTouch } = useAttribution()
     const t = translations[locale as keyof typeof translations] || translations.es
 
     useEffect(() => {
@@ -53,71 +55,102 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
 
                     // HubSpot sends different event types - we want meeting bookings
                     if (data && (data.type === 'hsFormCallback' || data.eventName === 'onFormSubmitted' || data.type === 'MEETING_BOOKED')) {
-                        console.log('🎯 MEETING BOOKING DETECTED - Sending UTMs to HubSpot NOW')
+                        console.log('🎯 MEETING BOOKING DETECTED - Using NEW attribution system')
 
-                        // OLD METHOD: Send UTMs to HubSpot (doesn't work for attribution)
-                        captureAndSendUTMsToHubSpotAsync().then(trackingSent => {
-                            console.log(`📡 Meeting Booked - HubSpot Tracking Result: ${trackingSent ? 'SUCCESS ✅' : 'FAILED ❌'}`)
-                        })
+                        // Update touchpoint
+                        updateTouch()
 
-                        // NEW METHOD: Schedule delayed attribution via backend API
-                        // This will extract email from the meeting booking and send proper attribution
-                        setTimeout(() => {
-                            console.log('🔍 Attempting to extract email for delayed attribution...')
+                        // Try to extract email from the meeting booking
+                        setTimeout(async () => {
+                            console.log('🔍 Attempting to extract email from meeting booking...')
 
-                            // Try to get email from HubSpot forms if available
-                            const forms = document.querySelectorAll('form')
                             let emailFound = false
+                            let contactEmail = ''
 
-                            forms.forEach(form => {
-                                const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement
-                                if (emailInput && emailInput.value) {
-                                    console.log(`📧 Found email for attribution: ${emailInput.value}`)
-                                    scheduleDelayedAttribution(emailInput.value, 15)
-                                    emailFound = true
-                                }
-                            })
-
-                            // Alternative: Try to get email from iframe content if accessible
-                            if (!emailFound) {
-                                console.log('⚠️ Could not extract email from forms. Scheduling generic delayed attribution.')
-                                // This will attempt to find the contact by other means
-                                scheduleDelayedAttribution('unknown@email.com', 30)
+                            // Method 1: Try to get email from HubSpot meeting data
+                            if (data && data.email) {
+                                contactEmail = data.email
+                                emailFound = true
+                                console.log(`📧 Found email in HubSpot data: ${contactEmail}`)
                             }
-                        }, 2000)
 
-                        // Also try to update the contact directly via HubSpot forms API
-                        const trackingParams = captureTrackingParams()
-                        if (window.hbspt && window.hbspt.forms && Object.keys(trackingParams).length > 0) {
-                            console.log('📝 Updating HubSpot contact properties with UTM data')
-                            try {
-                                // Create a hidden form submission to update contact properties
-                                window.hbspt.forms.create({
-                                    portalId: '21568098',
-                                    formId: 'utm-attribution-form',
-                                    target: '#hidden-form-container',
-                                    onFormReady: function() {
-                                        // Submit form immediately with UTM data
-                                        const form = document.querySelector('#hidden-form-container form') as HTMLFormElement
-                                        if (form) {
-                                            // Add UTM parameters as hidden fields
-                                            Object.entries(trackingParams).forEach(([key, value]) => {
-                                                const input = document.createElement('input')
-                                                input.type = 'hidden'
-                                                input.name = key
-                                                input.value = value || ''
-                                                form.appendChild(input)
-                                            })
-
-                                            // Submit the form
-                                            form.submit()
-                                        }
+                            // Method 2: Try to get email from forms in iframe
+                            if (!emailFound) {
+                                const forms = document.querySelectorAll('form')
+                                forms.forEach(form => {
+                                    const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement
+                                    if (emailInput && emailInput.value) {
+                                        contactEmail = emailInput.value
+                                        emailFound = true
+                                        console.log(`📧 Found email in form: ${contactEmail}`)
                                     }
                                 })
-                            } catch (error) {
-                                console.warn('Could not create UTM attribution form:', error)
                             }
-                        }
+
+                            // Method 3: Try to extract from iframe content (if accessible)
+                            if (!emailFound) {
+                                try {
+                                    const iframe = document.querySelector('iframe[src*="hubspot"]') as HTMLIFrameElement
+                                    if (iframe && iframe.contentWindow) {
+                                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document
+                                        const iframeEmailInput = iframeDoc?.querySelector('input[type="email"]') as HTMLInputElement
+                                        if (iframeEmailInput && iframeEmailInput.value) {
+                                            contactEmail = iframeEmailInput.value
+                                            emailFound = true
+                                            console.log(`📧 Found email in iframe: ${contactEmail}`)
+                                        }
+                                    }
+                                } catch (error) {
+                                    console.log('⚠️ Could not access iframe content (CORS restriction)')
+                                }
+                            }
+
+                            // Send attribution to our new API
+                            if (emailFound && contactEmail) {
+                                console.log('🚀 Sending attribution data to new API...')
+                                try {
+                                    const response = await fetch('/api/contact', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        },
+                                        body: JSON.stringify({
+                                            email: contactEmail,
+                                            firstname: '', // Will be filled by HubSpot
+                                            lastname: '',  // Will be filled by HubSpot
+                                            utmParams,
+                                            landingPage,
+                                            referrer,
+                                            isFirstTouch: false // Meeting booking is usually not first touch
+                                        })
+                                    })
+
+                                    const result = await response.json()
+                                    if (result.success) {
+                                        console.log('✅ Attribution sent successfully! Contact ID:', result.contactId)
+                                    } else {
+                                        console.error('❌ Attribution API error:', result.error)
+                                    }
+                                } catch (error) {
+                                    console.error('❌ Network error sending attribution:', error)
+                                }
+                            } else {
+                                console.log('⚠️ Could not extract email. Attribution not sent.')
+
+                                // Fallback: Log the event for manual tracking
+                                console.log('📊 Meeting booked with UTM data (no email):', {
+                                    utmParams,
+                                    landingPage,
+                                    referrer,
+                                    timestamp: new Date().toISOString()
+                                })
+                            }
+                        }, 3000) // Wait 3 seconds for email to be available
+
+                        // Log UTM parameters for debugging
+                        console.log('📊 UTM Parameters captured:', utmParams)
+                        console.log('🌐 Landing Page:', landingPage)
+                        console.log('🔗 Referrer:', referrer)
                     }
                 }
             }
