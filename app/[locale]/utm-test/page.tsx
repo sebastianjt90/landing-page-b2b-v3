@@ -1,14 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, use } from 'react'
 import { Button } from '@/components/ui/button'
 import { BookingModal } from '@/components/booking-modal'
 import { debugUTMCapture, captureTrackingParams, buildMeetingUrlWithCurrentParams, captureAndSendUTMsToHubSpot, captureAndSendUTMsToHubSpotAsync } from '@/lib/utm-utils'
 import { translations } from '@/lib/translations'
 
-export default function UTMTestPage({ params }: { params: { locale: string } }) {
+interface UTMTestPageProps {
+  params: Promise<{ locale: string }>
+}
+
+export default function UTMTestPage({ params }: UTMTestPageProps) {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)
-  const locale = params.locale === 'en' ? 'en' : 'es'
+  const { locale: localeParam } = use(params)
+  const locale = localeParam === 'en' ? 'en' : 'es'
   const t = translations[locale]
 
   const runUTMTest = () => {
@@ -63,8 +68,8 @@ export default function UTMTestPage({ params }: { params: { locale: string } }) 
                 <code className="block bg-blue-100 p-2 rounded text-sm">
                   ?utm_source=test&utm_medium=debug&utm_campaign=utm_testing&utm_content=test_page
                 </code>
-                <p>2. Click "Run UTM Test" to see debug information in console</p>
-                <p>3. Click "Open Booking Modal" to test the integration</p>
+                <p>2. Click &quot;Run UTM Test&quot; to see debug information in console</p>
+                <p>3. Click &quot;Open Booking Modal&quot; to test the integration</p>
                 <p>4. Open browser console (F12) to see detailed logs</p>
               </div>
             </div>

@@ -96,7 +96,7 @@ export function buildMeetingUrlWithCurrentParams(baseUrl: string): string {
  * Formats tracking parameters for logging/debugging
  */
 export function formatTrackingParamsForLog(params: TrackingParams): string {
-  const entries = Object.entries(params).filter(([_, value]) => value)
+  const entries = Object.entries(params).filter(([, value]) => value)
 
   if (entries.length === 0) {
     return 'No tracking parameters found'
