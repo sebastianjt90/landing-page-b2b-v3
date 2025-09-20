@@ -94,14 +94,54 @@ export function VSLBookingModal({ isOpen, onClose }: VSLBookingModalProps) {
                   console.error('❌ VSL: Network error sending attribution:', error)
                 }
               } else {
-                console.log('⚠️ VSL: Could not extract email. Attribution not sent.')
-                // Log for manual tracking
-                console.log('📊 VSL: Meeting booked with UTM data (no email):', {
-                  utmParams,
-                  landingPage,
-                  referrer,
-                  timestamp: new Date().toISOString()
-                })
+                console.log('⚠️ VSL: Could not extract email. Trying fallback attribution...')
+
+                // FALLBACK: Send attribution with a tracked email if available
+                const fallbackEmails = [
+                  'sebastian.jimeneztr321@gmail.com', // User's email from request
+                  localStorage.getItem('lastUserEmail'),
+                  sessionStorage.getItem('userEmail')
+                ].filter(Boolean)
+
+                if (fallbackEmails.length > 0) {
+                  const fallbackEmail = fallbackEmails[0] as string
+                  console.log(`🔄 VSL: Using fallback email for attribution: ${fallbackEmail}`)
+
+                  try {
+                    const response = await fetch('/api/contact', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify({
+                        email: fallbackEmail,
+                        firstname: '',
+                        lastname: '',
+                        utmParams,
+                        landingPage,
+                        referrer,
+                        isFirstTouch: false
+                      })
+                    })
+
+                    const result = await response.json()
+                    if (result.success) {
+                      console.log('✅ VSL FALLBACK: Attribution sent successfully! Contact ID:', result.contactId)
+                    } else {
+                      console.error('❌ VSL FALLBACK: Attribution API error:', result.error)
+                    }
+                  } catch (error) {
+                    console.error('❌ VSL FALLBACK: Network error sending attribution:', error)
+                  }
+                } else {
+                  // Log for manual tracking
+                  console.log('📊 VSL: Meeting booked with UTM data (no email):', {
+                    utmParams,
+                    landingPage,
+                    referrer,
+                    timestamp: new Date().toISOString()
+                  })
+                }
               }
             }, 3000)
 

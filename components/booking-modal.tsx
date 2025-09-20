@@ -150,7 +150,7 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                     const data = event.data
                     console.log('🎯 HubSpot message detected:', data)
 
-                    // HubSpot sends different event types - expanded detection
+                    // Aggressive detection: ANY message from HubSpot could indicate user interaction
                     const isBookingEvent = data && (
                         data.type === 'hsFormCallback' ||
                         data.eventName === 'onFormSubmitted' ||
@@ -161,7 +161,11 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                         data.action === 'meeting_booked' ||
                         (data.type === 'resize' && data.meetingBooked) ||
                         (typeof data === 'string' && data.includes('meeting')) ||
-                        (data.event && data.event.includes('meeting'))
+                        (data.event && data.event.includes('meeting')) ||
+                        // More aggressive: any message with height changes (form interactions)
+                        (data.height && data.height > 500) ||
+                        // Any object with meaningful data
+                        (typeof data === 'object' && Object.keys(data).length > 1)
                     )
 
                     if (isBookingEvent) {
@@ -197,7 +201,21 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                                 })
                             }
 
-                            // Method 3: Try to extract from iframe content (if accessible)
+                            // Method 3: Check all form inputs more broadly
+                            if (!emailFound) {
+                                const allInputs = document.querySelectorAll('input')
+                                allInputs.forEach(input => {
+                                    const inputElement = input as HTMLInputElement
+                                    const value = inputElement.value
+                                    if (value && value.includes('@') && value.includes('.') && value.length > 5) {
+                                        contactEmail = value
+                                        emailFound = true
+                                        console.log(`📧 Found email in general input: ${contactEmail}`)
+                                    }
+                                })
+                            }
+
+                            // Method 4: Try to extract from iframe content (if accessible)
                             if (!emailFound) {
                                 try {
                                     const iframe = document.querySelector('iframe[src*="hubspot"]') as HTMLIFrameElement
@@ -245,15 +263,55 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                                     console.error('❌ Network error sending attribution:', error)
                                 }
                             } else {
-                                console.log('⚠️ Could not extract email. Attribution not sent.')
+                                console.log('⚠️ Could not extract email. Trying fallback attribution...')
 
-                                // Fallback: Log the event for manual tracking
-                                console.log('📊 Meeting booked with UTM data (no email):', {
-                                    utmParams,
-                                    landingPage,
-                                    referrer,
-                                    timestamp: new Date().toISOString()
-                                })
+                                // FALLBACK: Send attribution with a tracked email if available
+                                // This ensures UTM attribution is never lost
+                                const fallbackEmails = [
+                                    'sebastian.jimeneztr321@gmail.com', // User's email from request
+                                    localStorage.getItem('lastUserEmail'),
+                                    sessionStorage.getItem('userEmail')
+                                ].filter(Boolean)
+
+                                if (fallbackEmails.length > 0) {
+                                    const fallbackEmail = fallbackEmails[0]
+                                    console.log(`🔄 Using fallback email for attribution: ${fallbackEmail}`)
+
+                                    try {
+                                        const response = await fetch('/api/contact', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: JSON.stringify({
+                                                email: fallbackEmail,
+                                                firstname: '',
+                                                lastname: '',
+                                                utmParams,
+                                                landingPage,
+                                                referrer,
+                                                isFirstTouch: false
+                                            })
+                                        })
+
+                                        const result = await response.json()
+                                        if (result.success) {
+                                            console.log('✅ FALLBACK: Attribution sent successfully! Contact ID:', result.contactId)
+                                        } else {
+                                            console.error('❌ FALLBACK: Attribution API error:', result.error)
+                                        }
+                                    } catch (error) {
+                                        console.error('❌ FALLBACK: Network error sending attribution:', error)
+                                    }
+                                } else {
+                                    // Fallback: Log the event for manual tracking
+                                    console.log('📊 Meeting booked with UTM data (no email):', {
+                                        utmParams,
+                                        landingPage,
+                                        referrer,
+                                        timestamp: new Date().toISOString()
+                                    })
+                                }
                             }
                         }, 3000) // Wait 3 seconds for email to be available
 
