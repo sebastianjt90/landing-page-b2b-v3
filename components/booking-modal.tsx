@@ -21,7 +21,7 @@ interface BookingModalProps {
 
 // Helper function to attempt attribution capture
 async function attemptAttributionCapture(
-    utmParams: Record<string, string>,
+    utmParams: Record<string, string | undefined>,
     landingPage: string,
     referrer: string,
     method: string
