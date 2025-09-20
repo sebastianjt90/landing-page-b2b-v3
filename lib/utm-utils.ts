@@ -9,11 +9,11 @@ export interface TrackingParams {
   utm_campaign?: string
   utm_content?: string
   utm_term?: string
-  gclid?: string
-  fbclid?: string
-  msclkid?: string
-  ttclid?: string
-  li_fat_id?: string
+  gclid?: string      // Google Click ID
+  fbclid?: string     // Facebook Click ID
+  msclkid?: string    // Microsoft Click ID
+  ttclid?: string     // TikTok Click ID
+  li_fat_id?: string  // LinkedIn Click ID
   [key: string]: string | undefined
 }
 
@@ -360,4 +360,71 @@ export async function captureAndSendUTMsToHubSpotAsync(): Promise<boolean> {
   }
 
   return success
+}
+
+/**
+ * Sends UTM attribution via backend API to properly update HubSpot contact
+ * This is the ONLY method that actually works for attribution
+ */
+export async function sendUTMAttributionViaAPI(email: string, contactId?: string): Promise<boolean> {
+  const trackingParams = captureTrackingParams()
+
+  // Si no hay UTMs, no hay nada que enviar
+  if (Object.keys(trackingParams).length === 0) {
+    console.log('📭 No UTM parameters to send via API')
+    return false
+  }
+
+  try {
+    console.log('🚀 Sending UTM attribution via backend API:', {
+      email,
+      contactId,
+      utmData: trackingParams
+    })
+
+    const response = await fetch('/api/hubspot-attribution', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        contactId,
+        utmData: trackingParams
+      })
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(`API Error: ${errorData.error}`)
+    }
+
+    const result = await response.json()
+    console.log('✅ UTM attribution sent successfully via API:', result)
+
+    return true
+  } catch (error) {
+    console.error('❌ Failed to send UTM attribution via API:', error)
+    return false
+  }
+}
+
+/**
+ * Delayed attribution sender - waits for HubSpot contact to be created
+ * then sends attribution via API
+ */
+export function scheduleDelayedAttribution(email: string, delaySeconds: number = 10): void {
+  const trackingParams = captureTrackingParams()
+
+  if (Object.keys(trackingParams).length === 0) {
+    console.log('📭 No UTMs to schedule for delayed attribution')
+    return
+  }
+
+  console.log(`⏰ Scheduling delayed attribution for ${email} in ${delaySeconds} seconds`)
+
+  setTimeout(async () => {
+    const success = await sendUTMAttributionViaAPI(email)
+    console.log(`${success ? '✅' : '❌'} Delayed attribution ${success ? 'successful' : 'failed'} for ${email}`)
+  }, delaySeconds * 1000)
 }

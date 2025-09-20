@@ -3,7 +3,14 @@
 import { useEffect, useState } from 'react'
 import { X } from 'lucide-react'
 import { translations } from '@/lib/translations'
-import { buildMeetingUrlWithCurrentParams, captureTrackingParams, formatTrackingParamsForLog, debugUTMCapture, captureAndSendUTMsToHubSpotAsync } from '@/lib/utm-utils'
+import { buildMeetingUrlWithCurrentParams, captureTrackingParams, formatTrackingParamsForLog, debugUTMCapture, captureAndSendUTMsToHubSpotAsync, scheduleDelayedAttribution } from '@/lib/utm-utils'
+
+// Global function type declaration
+declare global {
+    interface Window {
+        buildHubSpotMeetingURL?: (baseUrl: string) => string
+    }
+}
 
 interface BookingModalProps {
     isOpen: boolean
@@ -22,9 +29,20 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
             document.body.style.overflow = 'hidden'
             setIsLoading(true)
 
-            // Step 1: Build meeting URL with UTM parameters
+            // Step 1: Build meeting URL with UTM parameters using global function
             const baseUrl = t.booking.meetingUrl
-            const urlWithUtms = buildMeetingUrlWithCurrentParams(baseUrl)
+            let urlWithUtms = baseUrl
+
+            // Use the global HubSpot meeting URL builder if available
+            if (typeof window.buildHubSpotMeetingURL === 'function') {
+                urlWithUtms = window.buildHubSpotMeetingURL(baseUrl)
+                console.log('🌐 Using global HubSpot meeting URL builder')
+            } else {
+                // Fallback to original method
+                urlWithUtms = buildMeetingUrlWithCurrentParams(baseUrl)
+                console.log('🔄 Using fallback meeting URL builder')
+            }
+
             setMeetingUrl(urlWithUtms)
 
             // Step 2: Set up HubSpot meeting event listener for when booking actually happens
@@ -37,10 +55,36 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                     if (data && (data.type === 'hsFormCallback' || data.eventName === 'onFormSubmitted' || data.type === 'MEETING_BOOKED')) {
                         console.log('🎯 MEETING BOOKING DETECTED - Sending UTMs to HubSpot NOW')
 
-                        // Send UTMs to HubSpot when meeting is actually booked
+                        // OLD METHOD: Send UTMs to HubSpot (doesn't work for attribution)
                         captureAndSendUTMsToHubSpotAsync().then(trackingSent => {
                             console.log(`📡 Meeting Booked - HubSpot Tracking Result: ${trackingSent ? 'SUCCESS ✅' : 'FAILED ❌'}`)
                         })
+
+                        // NEW METHOD: Schedule delayed attribution via backend API
+                        // This will extract email from the meeting booking and send proper attribution
+                        setTimeout(() => {
+                            console.log('🔍 Attempting to extract email for delayed attribution...')
+
+                            // Try to get email from HubSpot forms if available
+                            const forms = document.querySelectorAll('form')
+                            let emailFound = false
+
+                            forms.forEach(form => {
+                                const emailInput = form.querySelector('input[type="email"]') as HTMLInputElement
+                                if (emailInput && emailInput.value) {
+                                    console.log(`📧 Found email for attribution: ${emailInput.value}`)
+                                    scheduleDelayedAttribution(emailInput.value, 15)
+                                    emailFound = true
+                                }
+                            })
+
+                            // Alternative: Try to get email from iframe content if accessible
+                            if (!emailFound) {
+                                console.log('⚠️ Could not extract email from forms. Scheduling generic delayed attribution.')
+                                // This will attempt to find the contact by other means
+                                scheduleDelayedAttribution('unknown@email.com', 30)
+                            }
+                        }, 2000)
 
                         // Also try to update the contact directly via HubSpot forms API
                         const trackingParams = captureTrackingParams()

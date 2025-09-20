@@ -32,6 +32,48 @@ export default async function LocaleLayout({
         className="antialiased"
         style={{ fontFamily: "'LaHaus Display', system-ui, sans-serif" }}
       >
+        {/* CRITICAL: UTM Capture BEFORE any other scripts */}
+        <Script
+          id="utm-capture-immediate"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                // Capture UTMs immediately on page load - BEFORE HubSpot
+                var params = new URLSearchParams(window.location.search);
+                var utmParams = {};
+                var hasUTMs = false;
+
+                // Standard UTM parameters
+                var utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
+                var clickIdKeys = ['gclid', 'fbclid', 'msclkid', 'ttclid', 'li_fat_id'];
+
+                [...utmKeys, ...clickIdKeys].forEach(function(key) {
+                  var value = params.get(key);
+                  if (value) {
+                    utmParams[key] = value;
+                    hasUTMs = true;
+                  }
+                });
+
+                if (hasUTMs) {
+                  // Store in localStorage immediately
+                  try {
+                    localStorage.setItem('hubspot_utm_data', JSON.stringify(utmParams));
+                    localStorage.setItem('hubspot_utm_timestamp', Date.now().toString());
+                    console.log('🎯 IMMEDIATE UTM CAPTURE:', utmParams);
+                  } catch (e) {
+                    console.warn('Could not store UTMs in localStorage');
+                  }
+
+                  // Set global variable for HubSpot to use
+                  window._hsUtmData = utmParams;
+                }
+              })();
+            `,
+          }}
+        />
+
         {/* Initialize dataLayer */}
         <Script
           id="gtm-datalayer"
@@ -68,79 +110,162 @@ export default async function LocaleLayout({
         
         {children}
         
-        {/* HubSpot Tracking Code - Changed to afterInteractive for better timing */}
+        {/* HubSpot Integration with Pre-captured UTMs */}
+        <Script
+          id="hubspot-utm-integration"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                // Initialize HubSpot with pre-captured UTMs
+                function initializeHubSpotWithUTMs() {
+                  console.log('🔧 Initializing HubSpot with pre-captured UTMs...');
+
+                  // Get UTMs from immediate capture or localStorage
+                  var utmParams = window._hsUtmData;
+
+                  if (!utmParams) {
+                    try {
+                      var stored = localStorage.getItem('hubspot_utm_data');
+                      if (stored) {
+                        utmParams = JSON.parse(stored);
+                        console.log('📦 Retrieved UTMs from localStorage:', utmParams);
+                      }
+                    } catch (e) {
+                      console.warn('Could not retrieve UTMs from localStorage');
+                    }
+                  }
+
+                  // Set up HubSpot queue with UTMs
+                  window._hsq = window._hsq || [];
+
+                  if (utmParams && Object.keys(utmParams).length > 0) {
+                    console.log('📡 Setting HubSpot attributes BEFORE tracking loads:', utmParams);
+
+                    // Method 1: Set via _hsq queue BEFORE HubSpot loads
+                    window._hsq.push(['setContentType', 'landing-page']);
+                    window._hsq.push(['setCanonicalUrl', window.location.href]);
+
+                    // Set UTM parameters directly in the tracking queue
+                    Object.keys(utmParams).forEach(function(key) {
+                      if (utmParams[key]) {
+                        window._hsq.push(['setCustomAttribute', key, utmParams[key]]);
+                        console.log('🏷️ Set ' + key + ' = ' + utmParams[key]);
+                      }
+                    });
+
+                    // Method 2: Also store in global for later access
+                    window.hubspotUTMs = utmParams;
+                  } else {
+                    console.log('📭 No UTMs to set for HubSpot');
+                  }
+                }
+
+                // Run immediately
+                initializeHubSpotWithUTMs();
+              })();
+            `,
+          }}
+        />
+
+        {/* HubSpot Tracking Code - Load AFTER UTM setup */}
         <Script
           id="hs-script-loader"
           strategy="afterInteractive"
           src={`https://js.hs-scripts.com/${HUBSPOT_PORTAL_ID}.js`}
         />
 
-        {/* UTM Capture and HubSpot Integration */}
+        {/* Post-HubSpot UTM Integration */}
         <Script
-          id="utm-hubspot-integration"
-          strategy="afterInteractive"
+          id="post-hubspot-utm-integration"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                // Capture UTMs immediately when page loads
-                function captureUTMsOnPageLoad() {
-                  // Get UTM parameters from URL
-                  const params = new URLSearchParams(window.location.search);
-                  const utmParams = {};
+                function finalizeUTMIntegration() {
+                  if (typeof window.hbspt !== 'undefined' && window.hbspt.identify) {
+                    var utmParams = window.hubspotUTMs || window._hsUtmData;
 
-                  // Standard UTM parameters
-                  const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'];
-                  const clickIdKeys = ['gclid', 'fbclid', 'msclkid', 'ttclid', 'li_fat_id'];
+                    if (utmParams && Object.keys(utmParams).length > 0) {
+                      console.log('🎯 Final HubSpot UTM integration via identify:', utmParams);
 
-                  [...utmKeys, ...clickIdKeys].forEach(key => {
-                    const value = params.get(key);
-                    if (value) utmParams[key] = value;
-                  });
+                      try {
+                        // Use HubSpot identify after it's fully loaded
+                        window.hbspt.identify(utmParams);
+                        console.log('✅ HubSpot identify() called successfully');
 
-                  // Store UTMs in sessionStorage immediately
-                  if (Object.keys(utmParams).length > 0) {
-                    try {
-                      sessionStorage.setItem('page_utm_params', JSON.stringify(utmParams));
-                      console.log('📊 Page Load UTMs captured:', utmParams);
-                    } catch (e) {
-                      console.warn('Could not store UTMs in sessionStorage');
+                        // Also try to set page view with UTM context
+                        if (window.hbspt.analytics && window.hbspt.analytics.trackPageView) {
+                          window.hbspt.analytics.trackPageView({
+                            path: window.location.pathname + window.location.search,
+                            title: document.title,
+                            url: window.location.href
+                          });
+                          console.log('📊 HubSpot page view tracked with UTM context');
+                        }
+
+                      } catch (error) {
+                        console.warn('❌ HubSpot identify() failed:', error);
+                      }
                     }
-                  }
-                }
 
-                // Wait for HubSpot to load, then send stored UTMs
-                function initUTMTracking() {
-                  if (typeof window.hbspt !== 'undefined') {
+                    // Additional: Set up meeting URL preservation
+                    window.buildHubSpotMeetingURL = function(baseUrl) {
+                      var utms = window.hubspotUTMs || window._hsUtmData;
+                      if (utms && Object.keys(utms).length > 0) {
+                        var url = new URL(baseUrl);
+                        Object.keys(utms).forEach(function(key) {
+                          if (utms[key]) {
+                            url.searchParams.set(key, utms[key]);
+                          }
+                        });
+                        console.log('🔗 Built meeting URL with UTMs:', url.toString());
+                        return url.toString();
+                      }
+                      return baseUrl;
+                    };
+
+                    // Advanced: Try to enhance the hubspotutk cookie with UTM attribution
                     try {
-                      const storedUTMs = sessionStorage.getItem('page_utm_params');
-                      if (storedUTMs) {
-                        const utmParams = JSON.parse(storedUTMs);
-                        console.log('📡 Sending stored UTMs to HubSpot:', utmParams);
+                      var hubspotCookie = document.cookie
+                        .split('; ')
+                        .find(row => row.startsWith('hubspotutk='));
 
-                        // Try hbspt.identify first
-                        if (window.hbspt.identify) {
-                          window.hbspt.identify(utmParams);
-                        } else if (window._hsq) {
-                          window._hsq.push(['identify', utmParams]);
+                      if (hubspotCookie && utmParams && Object.keys(utmParams).length > 0) {
+                        console.log('🍪 HubSpot tracking cookie found, enhancing with UTM context');
+
+                        // Store UTM context for HubSpot's internal attribution system
+                        if (window.hbspt && window.hbspt.analytics && window.hbspt.analytics.setPath) {
+                          var pathWithUTMs = window.location.pathname + window.location.search;
+                          window.hbspt.analytics.setPath(pathWithUTMs);
+                          console.log('🛤️ Set HubSpot analytics path with UTMs:', pathWithUTMs);
+                        }
+
+                        // Try to trigger a re-attribution by forcing a new page context
+                        if (window.hbspt && window.hbspt.analytics && window.hbspt.analytics.trackPageView) {
+                          setTimeout(function() {
+                            window.hbspt.analytics.trackPageView({
+                              path: window.location.pathname + window.location.search,
+                              title: document.title + ' (UTM Enhanced)',
+                              url: window.location.href,
+                              contentType: 'landing-page-with-utms'
+                            });
+                            console.log('🔄 Forced HubSpot page view re-track with enhanced UTM context');
+                          }, 500);
                         }
                       }
-                    } catch (error) {
-                      console.warn('Error sending UTMs to HubSpot:', error);
+                    } catch (cookieError) {
+                      console.log('🍪 Cookie enhancement not available:', cookieError);
                     }
+
                   } else {
-                    setTimeout(initUTMTracking, 500);
+                    // Retry if HubSpot isn't ready yet
+                    setTimeout(finalizeUTMIntegration, 1000);
                   }
                 }
 
-                // Capture UTMs immediately
-                captureUTMsOnPageLoad();
-
-                // Start trying to initialize UTM tracking
-                if (document.readyState === 'loading') {
-                  document.addEventListener('DOMContentLoaded', initUTMTracking);
-                } else {
-                  setTimeout(initUTMTracking, 1000); // Give HubSpot time to load
-                }
+                // Wait a bit for HubSpot to fully initialize
+                setTimeout(finalizeUTMIntegration, 2000);
               })();
             `,
           }}
