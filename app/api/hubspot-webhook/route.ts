@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { processAttribution, UTMParams } from '@/lib/hubspot-attribution'
+import { UTMParams } from '@/lib/hubspot-attribution'
 
 // HubSpot Webhook Event Types we care about
 interface HubSpotWebhookEvent {
@@ -291,7 +291,13 @@ async function getStoredAttributionForContact(email: string): Promise<{
  */
 async function applyWebhookAttributionCorrection(
   email: string,
-  attributionData: any,
+  attributionData: {
+    utmParams: UTMParams
+    landingPage: string
+    referrer: string
+    sessionId: string
+    timestamp: string
+  },
   contactId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {

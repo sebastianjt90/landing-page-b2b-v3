@@ -145,7 +145,7 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
     const [meetingUrl, setMeetingUrl] = useState<string>('')
     const [iframeId] = useState(() => `hubspot-meetings-iframe-${Date.now()}`)
     const { utmParams, landingPage, referrer, updateTouch } = useAttribution()
-    const { preRegisterLead, getPreAttributionData, clearPreAttributionData } = usePreAttribution()
+    const { preRegisterLead, getPreAttributionData } = usePreAttribution()
     const t = translations[locale as keyof typeof translations] || translations.es
 
     // Enhanced function to build iframe URL with UTMs + HubSpot-specific tracking
@@ -682,8 +682,8 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                                     }
                                 }, 5000)
                             }
-                        } catch (error) {
-                            console.error('❌ Error in fallback attribution:', error)
+                        } catch (attributionError) {
+                            console.error('❌ Error in fallback attribution:', attributionError)
                         }
                     }
                 })

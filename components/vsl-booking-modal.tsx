@@ -15,7 +15,7 @@ export function VSLBookingModal({ isOpen, onClose }: VSLBookingModalProps) {
   const [meetingUrl, setMeetingUrl] = useState<string>('')
   const [iframeId] = useState(() => `vsl-hubspot-meetings-iframe-${Date.now()}`)
   const { utmParams, landingPage, referrer, updateTouch } = useAttribution()
-  const { preRegisterLead, getPreAttributionData, clearPreAttributionData } = usePreAttribution()
+  const { preRegisterLead, getPreAttributionData } = usePreAttribution()
 
   // Enhanced function to build iframe URL with UTMs + HubSpot-specific tracking (VSL version)
   const buildIframeSrcWithUTMs = (baseUrl: string) => {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useAttribution } from '@/hooks/use-attribution'
 import { usePreAttribution } from '@/hooks/use-pre-attribution'
 import { BookingModal } from '@/components/booking-modal'
@@ -13,13 +13,13 @@ interface AttributionTestContentProps {
 export function AttributionTestContent({ locale }: AttributionTestContentProps) {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false)
   const [isVSLModalOpen, setIsVSLModalOpen] = useState(false)
-  const [testResults, setTestResults] = useState<any[]>([])
+  const [testResults, setTestResults] = useState<Array<{ timestamp: string; test: string; result: unknown }>>([])
   const [testEmail, setTestEmail] = useState('test@attribution-demo.com')
 
   const { utmParams, landingPage, referrer, submitAttribution } = useAttribution()
   const { preRegisterLead, getPreAttributionData, isPreRegistering } = usePreAttribution()
 
-  const addTestResult = (test: string, result: any) => {
+  const addTestResult = (test: string, result: unknown) => {
     setTestResults(prev => [...prev, {
       timestamp: new Date().toISOString(),
       test,
@@ -181,7 +181,7 @@ export function AttributionTestContent({ locale }: AttributionTestContentProps) 
           🎯 4-Level Attribution System Test
         </h1>
         <p className="text-gray-600 mb-6">
-          Comprehensive testing suite for the complete attribution system that solves the "Direct Traffic" problem.
+          Comprehensive testing suite for the complete attribution system that solves the &quot;Direct Traffic&quot; problem.
         </p>
 
         {/* Current Attribution Status */}
@@ -356,7 +356,7 @@ export function AttributionTestContent({ locale }: AttributionTestContentProps) 
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">🎯 Problem Solved</h3>
             <p className="text-gray-700">
-              This 4-level attribution system completely eliminates the "Direct Traffic" problem in HubSpot
+              This 4-level attribution system completely eliminates the &quot;Direct Traffic&quot; problem in HubSpot
               by ensuring attribution data is captured and applied through multiple redundant mechanisms.
             </p>
           </div>
@@ -374,7 +374,7 @@ export function AttributionTestContent({ locale }: AttributionTestContentProps) 
               </div>
               <div className="border-l-4 border-orange-400 pl-4">
                 <strong className="text-orange-700">Level 3: Post-Booking Correction</strong>
-                <p className="text-gray-600">Detects and corrects "Direct Traffic" attribution after booking</p>
+                <p className="text-gray-600">Detects and corrects &quot;Direct Traffic&quot; attribution after booking</p>
               </div>
               <div className="border-l-4 border-purple-400 pl-4">
                 <strong className="text-purple-700">Level 4: Webhook Integration</strong>

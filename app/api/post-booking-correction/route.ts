@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { processAttribution, sendAttributionToHubSpot, UTMParams } from '@/lib/hubspot-attribution'
+import { processAttribution, UTMParams } from '@/lib/hubspot-attribution'
 
 interface PostBookingCorrectionRequest {
   email: string
@@ -203,7 +203,7 @@ async function getContactFromHubSpot(email: string, apiKey: string) {
 /**
  * Check if attribution correction is needed
  */
-function checkIfCorrectionNeeded(properties: any, forceCorrection = false): boolean {
+function checkIfCorrectionNeeded(properties: ContactProperties, forceCorrection = false): boolean {
   if (forceCorrection) return true
 
   // Check for "direct traffic" indicators that need correction
@@ -229,7 +229,7 @@ function checkIfCorrectionNeeded(properties: any, forceCorrection = false): bool
 /**
  * Update contact attribution in HubSpot
  */
-async function updateContactAttribution(contactId: string, attributionData: any, apiKey: string) {
+async function updateContactAttribution(contactId: string, attributionData: Record<string, string>, apiKey: string) {
   try {
     const updateResponse = await fetch(`https://api.hubapi.com/crm/v3/objects/contacts/${contactId}`, {
       method: 'PATCH',
@@ -256,7 +256,13 @@ async function updateContactAttribution(contactId: string, attributionData: any,
 /**
  * Get stored attribution data (placeholder - would integrate with actual storage)
  */
-async function getStoredAttributionData(email: string): Promise<any> {
+async function getStoredAttributionData(email: string): Promise<{
+  utmParams: UTMParams
+  landingPage: string
+  referrer: string
+  sessionId: string
+  timestamp: string
+} | null> {
   // This would integrate with your session storage system
   // For now, return null as fallback
   console.log('📦 POST-BOOKING: Looking for stored attribution data for:', email)
