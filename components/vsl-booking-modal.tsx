@@ -123,9 +123,8 @@ export function VSLBookingModal({ isOpen, onClose }: VSLBookingModalProps) {
 
       // Log tracking parameters for debugging (only in development)
       if (process.env.NODE_ENV === 'development') {
-        const trackingParams = captureTrackingParams()
         console.log('🚀 VSL BOOKING MODAL DEBUG SUMMARY:')
-        console.log('📊 UTM Parameters:', formatTrackingParamsForLog(trackingParams))
+        console.log('📊 UTM Parameters:', utmParams)
         console.log('🔗 VSL Meeting URL with UTMs (fallback):', urlWithUtms)
         console.log('📅 VSL Meeting iframe will load next')
       }

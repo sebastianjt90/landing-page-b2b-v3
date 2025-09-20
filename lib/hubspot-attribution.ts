@@ -183,6 +183,7 @@ export function processAttribution(
     latest_attribution_date_custom: currentTimestamp
   };
 
+
   // Agregar first touch timestamp solo si es el primer touchpoint
   if (isFirstTouch) {
     attributionData.first_attribution_date_custom = currentTimestamp;
@@ -211,6 +212,7 @@ export async function sendAttributionToHubSpot(
       ...contactData,
       ...attributionData
     };
+
 
     const response = await fetch('https://api.hubapi.com/crm/v3/objects/contacts', {
       method: 'POST',
@@ -301,6 +303,9 @@ async function updateExistingContact(
       language_target_custom: attributionData.language_target_custom,
       latest_attribution_date_custom: attributionData.latest_attribution_date_custom
     };
+
+    // Debug: Log update properties to see what's being sent
+    console.log('🔍 DEBUG: UPDATE Properties being sent to HubSpot:', JSON.stringify(updateData, null, 2));
 
     const updateResponse = await fetch(`https://api.hubapi.com/crm/v3/objects/contacts/${contactId}`, {
       method: 'PATCH',

@@ -418,7 +418,7 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                 onClick={async () => {
                     // Before closing, try to capture attribution
                     console.log('🚪 Backdrop clicked - attempting final attribution capture')
-                    await attemptAttributionCapture(utmParams, landingPage, referrer, 'BACKDROP_CLICK')
+                    await attemptAttributionCapture(utmParams as Record<string, string | undefined>, landingPage, referrer, 'BACKDROP_CLICK')
                     onClose()
                 }}
             />
@@ -430,7 +430,7 @@ export function BookingModal({ isOpen, onClose, locale = 'es' }: BookingModalPro
                     onClick={async () => {
                         // Before closing, try to capture attribution
                         console.log('🚪 Modal closing - attempting final attribution capture')
-                        await attemptAttributionCapture(utmParams, landingPage, referrer, 'MODAL_CLOSE')
+                        await attemptAttributionCapture(utmParams as Record<string, string | undefined>, landingPage, referrer, 'MODAL_CLOSE')
                         onClose()
                     }}
                     className="absolute -top-12 right-0 z-20 p-2 bg-white hover:bg-gray-100 rounded-full shadow-lg transition-all"
