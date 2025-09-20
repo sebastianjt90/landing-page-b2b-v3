@@ -52,45 +52,44 @@ export async function POST(request: NextRequest) {
 
     // Preparar propiedades de atribución para HubSpot
     const properties: Record<string, string> = {}
-    const currentTimestamp = Date.now().toString()
-    const currentUrl = `https://lahaus.ai/?${new URLSearchParams(utmData).toString()}`
 
-    // CRÍTICO: Propiedades principales de atribución (las que HubSpot usa internamente)
+    // Mapear UTM source a valores permitidos por HubSpot
+    const mapSourceToHubSpotValue = (source: string): string => {
+      const sourceMap: Record<string, string> = {
+        'facebook': 'PAID_SOCIAL',
+        'google': 'PAID_SEARCH',
+        'linkedin': 'PAID_SOCIAL',
+        'email': 'EMAIL_MARKETING',
+        'organic': 'ORGANIC_SEARCH',
+        'referral': 'REFERRALS',
+        'direct': 'DIRECT_TRAFFIC',
+        'api_test_real': 'OTHER_CAMPAIGNS',
+        'test': 'OTHER_CAMPAIGNS'
+      }
+
+      // Buscar coincidencia en el source
+      for (const [key, value] of Object.entries(sourceMap)) {
+        if (source.toLowerCase().includes(key)) {
+          return value
+        }
+      }
+
+      return 'OTHER_CAMPAIGNS' // Default fallback
+    }
+
+    // Mapear lead status a valores permitidos
+    const mapLeadStatus = (): string => {
+      return 'WARM' // Usar WARM en lugar de NEW
+    }
+
+    // CRÍTICO: Solo usar propiedades que SÍ se pueden escribir
     if (utmData.utm_source) {
-      properties['hs_analytics_source'] = utmData.utm_source
-      properties['utm_source'] = utmData.utm_source
-      // También actualizar la fuente más reciente
-      properties['hs_latest_source'] = utmData.utm_source
+      const hubspotSource = mapSourceToHubSpotValue(utmData.utm_source)
+      properties['hs_analytics_source'] = hubspotSource
+      properties['hs_latest_source'] = hubspotSource
     }
 
-    if (utmData.utm_medium) {
-      properties['hs_analytics_source_data_1'] = utmData.utm_medium
-      properties['utm_medium'] = utmData.utm_medium
-      properties['hs_latest_source_data_1'] = utmData.utm_medium
-    }
-
-    if (utmData.utm_campaign) {
-      properties['hs_analytics_source_data_2'] = utmData.utm_campaign
-      properties['utm_campaign'] = utmData.utm_campaign
-      properties['hs_latest_source_data_2'] = utmData.utm_campaign
-    }
-
-    if (utmData.utm_content) {
-      properties['utm_content'] = utmData.utm_content
-    }
-
-    if (utmData.utm_term) {
-      properties['utm_term'] = utmData.utm_term
-    }
-
-    // MEJORADO: URLs de atribución (crítico para seguimiento completo)
-    properties['hs_analytics_first_url'] = currentUrl
-    properties['hs_analytics_last_url'] = currentUrl
-
-    // MEJORADO: Timestamps de atribución
-    properties['hs_latest_source_timestamp'] = currentTimestamp
-
-    // MEJORADO: Click IDs si están disponibles (para ads)
+    // MEJORADO: Click IDs (estas SÍ funcionan)
     if (utmData.gclid) {
       properties['hs_google_click_id'] = utmData.gclid
     }
@@ -99,13 +98,26 @@ export async function POST(request: NextRequest) {
       properties['hs_facebook_click_id'] = utmData.fbclid
     }
 
-    // MEJORADO: Evento de conversión para tracking de meetings
-    properties['recent_conversion_event_name'] = 'Meeting Booked'
-    properties['recent_conversion_date'] = currentTimestamp
+    // MEJORADO: Lead status con valor válido
+    properties['hs_lead_status'] = mapLeadStatus()
 
-    // MEJORADO: Lead status y source específico
-    properties['hs_lead_status'] = 'NEW'
-    properties['engagements_last_meeting_booked_source'] = utmData.utm_source || 'API Attribution Update'
+    // MEJORADO: Timestamp de fuente más reciente (esta SÍ se puede escribir)
+    properties['hs_latest_source_timestamp'] = Date.now().toString()
+
+    // NOTE: Removidas las propiedades que son READ_ONLY según el error:
+    // - hs_analytics_source_data_1 (READ_ONLY)
+    // - hs_analytics_source_data_2 (READ_ONLY)
+    // - hs_analytics_first_url (READ_ONLY)
+    // - hs_analytics_last_url (READ_ONLY)
+    // - hs_latest_source_data_1 (READ_ONLY)
+    // - hs_latest_source_data_2 (READ_ONLY)
+    // - recent_conversion_event_name (CALCULATED)
+    // - recent_conversion_date (CALCULATED)
+    // - engagements_last_meeting_booked_source (READ_ONLY)
+
+    // NOTE: Removidas las propiedades UTM que no existen:
+    // - utm_source, utm_medium, utm_campaign, utm_content, utm_term
+    // Estas propiedades aparentemente no existen como campos editables en este HubSpot
 
     // Actualizar el contacto en HubSpot
     const updateResponse = await fetch(
