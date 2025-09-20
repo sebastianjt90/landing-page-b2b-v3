@@ -273,7 +273,8 @@ export function sendUTMsToHubSpot(params: TrackingParams): boolean {
         _hsq: typeof window._hsq,
         hbspt_identify: window.hbspt?.identify ? 'available' : 'not available',
         hbspt_cta: window.hbspt?.cta ? 'available' : 'not available',
-        hsq: typeof window.hsq
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        hsq: typeof (window as any).hsq
       })
     } else {
       console.log('✅ UTM tracking sent to HubSpot successfully')
