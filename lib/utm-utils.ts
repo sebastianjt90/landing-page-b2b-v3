@@ -132,7 +132,7 @@ export function debugUTMCapture(): void {
   console.log('📊 Formatted for Log:', formatTrackingParamsForLog(trackingParams))
 
   // Build example meeting URL
-  const exampleBaseUrl = 'https://meetings.hubspot.com/sebastian-jimenez-trujillo/lahausai-demo?embed=true&lang=es'
+  const exampleBaseUrl = 'https://meetings.hubspot.com/sebastian-jimenez-trujillo/lahausai-demo?lang=es'
   const finalUrl = buildMeetingUrl(exampleBaseUrl, trackingParams)
   console.log('🔗 Example Meeting URL with UTMs:', finalUrl)
 

@@ -9,7 +9,7 @@ interface VSLBookingModalProps {
   onClose?: () => void
 }
 
-const VSL_MEETING_URL = 'https://meetings.hubspot.com/sebastian-jimenez-trujillo/vsl-demo?embed=true'
+const VSL_MEETING_URL = 'https://meetings.hubspot.com/sebastian-jimenez-trujillo/vsl-demo'
 
 export function VSLBookingModal({ isOpen, onClose }: VSLBookingModalProps) {
   const { utmParams, landingPage, referrer } = useAttribution()

@@ -9,7 +9,7 @@ interface VSLPmaxBookingModalProps {
   onClose?: () => void
 }
 
-const VSL_PMAX_MEETING_URL = 'https://meetings.hubspot.com/sebastian-jimenez-trujillo/vsl-pmax?embed=true'
+const VSL_PMAX_MEETING_URL = 'https://meetings.hubspot.com/sebastian-jimenez-trujillo/vsl-pmax'
 
 export function VSLPmaxBookingModal({ isOpen, onClose }: VSLPmaxBookingModalProps) {
   const { utmParams, landingPage, referrer } = useAttribution()

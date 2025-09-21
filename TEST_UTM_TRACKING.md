@@ -55,13 +55,12 @@ http://localhost:3000/es/utm-test?utm_source=debug_test&utm_medium=manual_test&u
 ### Console Output Example:
 ```
 📊 Booking Modal - UTM Parameters: utm_source=instagram, utm_medium=rrss, utm_campaign=vsl_spanish_mx, utm_content=story_link
-🔗 Meeting URL with UTMs: https://meetings.hubspot.com/sebastian-jimenez-trujillo/lahausai-demo?embed=true&lang=es&utm_source=instagram&utm_medium=rrss&utm_campaign=vsl_spanish_mx&utm_content=story_link
+🔗 Meeting URL with UTMs: https://meetings.hubspot.com/sebastian-jimenez-trujillo/lahausai-demo?lang=es&utm_source=instagram&utm_medium=rrss&utm_campaign=vsl_spanish_mx&utm_content=story_link
 ```
 
 ### HubSpot Meeting URL Should Include:
 - ✅ Original UTM parameters
-- ✅ Language parameter
-- ✅ Embed parameter
+- ✅ Language parameter (when applicable)
 
 ## 🎯 VSL Page Testing
 
@@ -72,7 +71,7 @@ http://localhost:3001/es/vsl?utm_source=instagram&utm_medium=rrss&utm_campaign=v
 
 Expected VSL meeting URL:
 ```
-https://meetings.hubspot.com/sebastian-jimenez-trujillo/vsl-demo?embed=true&utm_source=instagram&utm_medium=rrss&utm_campaign=vsl_spanish_col
+https://meetings.hubspot.com/sebastian-jimenez-trujillo/vsl-demo?utm_source=instagram&utm_medium=rrss&utm_campaign=vsl_spanish_col
 ```
 
 ## ✅ Success Criteria
